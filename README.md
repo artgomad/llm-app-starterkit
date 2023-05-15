@@ -4,7 +4,9 @@
 
 1. Fork/Clone
 
-2. Run the server-side FastAPI app locally from the terminal window:
+2. Rename .env-template file as .env and enter your personal API key from https://platform.openai.com/account/api-keys
+
+3. Run the server-side FastAPI app locally from the terminal window:
 
    ```sh
    $ cd backend
