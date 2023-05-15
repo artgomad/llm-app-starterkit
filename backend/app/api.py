@@ -26,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -34,16 +35,23 @@ async def websocket_endpoint(websocket: WebSocket):
         data = await websocket.receive_text()
 
         # Process the received data from the client
-        chatlog = json.loads(data)['chatlog']
-        chatlog_strings = ""
+        payload = json.loads(data)
 
+        chatlog = payload['chatlog']
+        system_message = payload['system_message']
+        user_message_template = payload['user_message_template']
+
+        chatlog_strings = ""
         # Format chatlog to be fed as agent memory
         for item in chatlog:
             chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
 
         chat_chain = BasicChatChain.create_chain()
 
-        llm_response = chat_chain.run({'chat_history': chatlog_strings})
+        llm_response = chat_chain.run(
+            {'system_message': system_message, 
+             'user_message_template': user_message_template, 
+             'chat_history': chatlog_strings})
 
         print('llm response = ')
         print(llm_response)

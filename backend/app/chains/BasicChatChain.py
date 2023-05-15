@@ -16,29 +16,21 @@ BLUE = "\033[34m"
 YELLOW = "\033[1;33m"
 RESET = "\033[0m"
 
-system_message = """You are Ben, a digital assistant from ING.
-Ben is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations on topics related to ING. 
-"""
 
-first_message_template = """
-
-**Previous conversation history:
-{chat_history}
-
-Begin!
-"""
+#first_message_template = "**Previous conversation history:{chat_history}"
 
 
 class CustomPromptTemplate(BaseChatPromptTemplate):
-    template: str
-
     def format_messages(self, **kwargs) -> str:
         kwargs["chat_history"] = kwargs.get("chat_history", "")
 
-        formatted = self.template.format(**kwargs)
+        system_message = kwargs.get("system_message", "")
+
+        user_message_template = kwargs.get("user_message_template", "")
+        user_message = user_message_template.format(**kwargs)
 
         llm_prompt_input = [SystemMessage(
-            content=system_message), HumanMessage(content=formatted)]
+            content=system_message), HumanMessage(content=user_message)]
 
         print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
         print(llm_prompt_input)
@@ -49,13 +41,13 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 class BasicChatChain():
     def create_chain():
         prompt = CustomPromptTemplate(
-            template=first_message_template,
-            input_variables=["chat_history"],
+            input_variables=["chat_history",
+                             "system_message", "user_message_template"],
         )
 
         llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')
 
-    # Declare a chain that will trigger an openAI completion with the given prompt
+        # Declare a chain that will trigger an openAI completion with the given prompt
         llm_chain = LLMChain(
             llm=llm,
             prompt=prompt,

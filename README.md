@@ -21,4 +21,8 @@
    $ kill {PID} (example: $ kill 25355 , will kill the current active process, and allow you to restart the backend with $ python main.py)
    ```
 
+4. Work with a Framer front end (see example here https://satisfaction-hurt-939139.framer.app/)
+
+
+
 
