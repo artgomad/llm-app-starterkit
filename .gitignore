@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+build/
+venv/
+env/
+__pycache__
+
+# local env files
+.env*.local
+.env
+.csv
+.png
+.xlsx
+.pkl
