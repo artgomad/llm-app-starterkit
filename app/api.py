@@ -1,12 +1,16 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import openai
 from dotenv import load_dotenv
 import os
 import json
-from app.chains.BasicChatChain import BasicChatChain
+import pickle
+from pydantic import BaseModel
 import asyncio
 import signal
+from app.chains.BasicChatChain import BasicChatChain
+from app.utils.vectorstores.Faiss import Faiss
+
 
 load_dotenv()
 
@@ -17,7 +21,9 @@ openai.api_key = os.environ.get('OPENAI_API_KEY')
 # Define which front-end origins are allowed to make requests
 origins = [
     "https://project-zszmhke1xyd6rlfxgg1i.framercanvas.com",  # Framer Canvas
-    "https://comprehensive-value-405432.framer.app"  # A framer publised website
+    "https://comprehensive-value-405432.framer.app",  # A framer publised website
+    "https://script.google.com",
+    "https://script.googleusercontent.com"
 ]
 
 app.add_middleware(
@@ -60,6 +66,29 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_json({
             "data":  llm_response,
         })
+
+
+class Item(BaseModel):
+    file_name: str
+
+
+@app.post("/create_vectorstore")
+async def create_vectorstore(item: Item, csv: UploadFile = File(...)):
+    file_name = item.file_name
+    csv_content = await csv.read()
+    # Write the csv content to a file
+    with open('data/csv_files/' + file_name + '.csv', 'wb') as f:
+        f.write(csv_content)
+        
+    # Check if the vectorstore exists
+    if os.path.exists('data/vectorstores/' + file_name + '.pkl'):
+        with open('data/vectorstores/' + file_name + '.pkl', "rb") as f:
+            docsearch = pickle.load(f)
+    else:
+        Faiss.embed_doc(file_name=file_name)
+
+    return {"data": "saved"}
+
 
 # Register a signal handler for SIGINT (Ctrl-C)
 def handle_exit_signal(signum, frame):
