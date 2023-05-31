@@ -23,6 +23,8 @@
 
 4. Work with a Framer front end (see example here https://satisfaction-hurt-939139.framer.app/)
 
-
-
+5. Debug Heroku
+   ```sh
+   $ heroku logs --tail --app llm-app-starterkit
+   ```
 

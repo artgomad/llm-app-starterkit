@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Dict
 import openai
 from dotenv import load_dotenv
 import os
@@ -73,12 +74,12 @@ class Item(BaseModel):
 
 
 @app.post("/create_vectorstore")
-async def create_vectorstore(item: Item, csv: UploadFile = File(...)):
-    file_name = item.file_name
-    csv_content = await csv.read()
+async def create_vectorstore(data: Dict[str, str]):
+    file_name = json.loads(data['item'])['file_name']
+    csv = data['csv']
     # Write the csv content to a file
-    with open('data/csv_files/' + file_name + '.csv', 'wb') as f:
-        f.write(csv_content)
+    with open('data/csv_files/' + file_name + '.csv', 'w') as f:
+        f.write(csv)
         
     # Check if the vectorstore exists
     if os.path.exists('data/vectorstores/' + file_name + '.pkl'):
