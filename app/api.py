@@ -69,14 +69,17 @@ async def websocket_endpoint(websocket: WebSocket):
         })
 
 
-class Item(BaseModel):
-    file_name: str
+class CSVData(BaseModel):
+    item: str
+    csv: str
+
 
 
 @app.post("/create_vectorstore")
-async def create_vectorstore(data: Dict[str, str]):
-    file_name = json.loads(data['item'])['file_name']
-    csv = data['csv']
+async def create_vectorstore(data: CSVData):
+    item = json.loads(data.item)
+    file_name = item['file_name']
+    csv = data.csv
 
     print("INITIALISING VECTORSTORE CREATION")
     # Write the csv content to a file
