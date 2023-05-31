@@ -77,6 +77,8 @@ class Item(BaseModel):
 async def create_vectorstore(data: Dict[str, str]):
     file_name = json.loads(data['item'])['file_name']
     csv = data['csv']
+
+    print("INITIALISING VECTORSTORE CREATION")
     # Write the csv content to a file
     with open('data/csv_files/' + file_name + '.csv', 'w') as f:
         f.write(csv)
