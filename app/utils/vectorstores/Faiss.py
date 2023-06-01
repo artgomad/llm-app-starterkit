@@ -31,11 +31,7 @@ class Faiss():
         contents: List[str] = []
         metadata: List[dict] = [] 
 
-        # convert the csv string to a file-like object for csv.reader
-        csv_file_like_object = io.StringIO(csv_data)
-        reader = csv.reader(csv_file_like_object)
-
-        #reader = csv.DictReader(io.StringIO(csv_data))
+        reader = csv.DictReader(io.StringIO(csv_data))
         for row in reader:
             #print(row['content'])
             content = row['content']
@@ -43,7 +39,7 @@ class Faiss():
                 content = ''
             
             print(row)
-
+            
             contents.append(content)
             metadata.append(row)
 
