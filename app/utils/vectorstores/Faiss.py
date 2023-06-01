@@ -37,7 +37,9 @@ class Faiss():
             content = row['content']
             if content is None:  # replace None with empty string
                 content = ''
-
+            
+            print(row)
+            
             contents.append(content)
             metadata.append(row)
 
