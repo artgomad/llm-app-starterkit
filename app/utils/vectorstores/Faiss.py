@@ -37,12 +37,7 @@ class Faiss():
             content = row['content']
 
             contents.append(content)
-
-            metadata_dict = {
-                'title': row['title'],
-                'heading': row['heading']
-            }
-            metadata.append(metadata_dict)
+            metadata.append(row)
 
         # Load Data to vectorstore
         embedding = OpenAIEmbeddings()
