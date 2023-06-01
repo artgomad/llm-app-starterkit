@@ -86,7 +86,7 @@ async def create_vectorstore(data: CSVData):
     print("INITIALISING VECTORSTORE CREATION")
 
     faiss = Faiss(file_name=file_name)
-    #loaded_vectorstore = faiss.load_vectorstore()
+    loaded_vectorstore = faiss.load_vectorstore()
 
     if loaded_vectorstore is None:
         # Create the vectorstore
