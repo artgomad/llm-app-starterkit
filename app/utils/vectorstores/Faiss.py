@@ -19,7 +19,6 @@ class Faiss():
         self.file_name = file_name
         self.vectorstore = VECTORSTORE_FOLDER + file_name + '.pkl'
 
-    @staticmethod
     def load_vectorstore(self):
         # Check if the pickle file exists in vecotrstore folder and load it
         if os.path.exists(self.vectorstore):
@@ -27,8 +26,7 @@ class Faiss():
                 return pickle.load(f)
         else:
             return None  
-        
-    @staticmethod      
+            
     def embed_doc(self, csv_data):
         contents: List[str] = []
         metadata: List[dict] = [] 
@@ -56,7 +54,6 @@ class Faiss():
             print("SAVING VECTORSTORE TO PICKLE FILE")
             pickle.dump(vectorstore, f)
 
-    @staticmethod  
     def vector_search(self, query: str, number_of_outputs:int) -> str:
         # Check if the pickle file exists in vecotrstore folder and load it
         if os.path.exists(self.vectorstore):
