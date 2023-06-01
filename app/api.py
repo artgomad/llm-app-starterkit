@@ -90,7 +90,7 @@ async def create_vectorstore(data: CSVData):
 
     if loaded_vectorstore is None:
         # Create the vectorstore
-        loaded_vectorstore = faiss.embed_doc(csv_data='csv_data')
+        loaded_vectorstore = faiss.embed_doc(csv_data=csv_data)
         response = "VECTORSTORE CREATED"
     else:
         print("VECTORSTORE ALREADY EXISTS")
