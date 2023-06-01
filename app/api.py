@@ -85,15 +85,22 @@ async def create_vectorstore(data: CSVData):
 
     print("INITIALISING VECTORSTORE CREATION")
 
-    docsearch = Faiss.load_vectorstore(file_name)
+    faiss = Faiss(file_name=file_name)
+    #loaded_vectorstore = faiss.load_vectorstore()
 
-    if docsearch is None:
+    if loaded_vectorstore is None:
         # Create the vectorstore
-        docsearch = Faiss.embed_doc(file_name=file_name, csv_data=csv_data)
+        loaded_vectorstore = faiss.embed_doc(csv_data='csv_data')
         response = "VECTORSTORE CREATED"
     else:
         print("VECTORSTORE ALREADY EXISTS")
-        response = "VECTORSTORE ALREADY EXISTS"
+        query= "When can I start using the insurance?"
+        result = faiss.vector_search(query= query, number_of_outputs=5)
+        print(result)
+        #Stringify the result and save it as the response
+        response = json.dumps(result)
+
+        
 
     return {"data": response}
 
