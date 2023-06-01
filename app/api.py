@@ -11,6 +11,7 @@ import asyncio
 import signal
 from app.chains.BasicChatChain import BasicChatChain
 from app.utils.vectorstores.Faiss import Faiss
+from definitions import VECTORSTORE_FOLDER, CSV_FOLDER
 
 
 load_dotenv()
@@ -79,19 +80,15 @@ class CSVData(BaseModel):
 async def create_vectorstore(data: CSVData):
     item = json.loads(data.item)
     file_name = item['file_name']
-    csv = data.csv
+    csv_data = data.csv
 
     print("INITIALISING VECTORSTORE CREATION")
-    # Write the csv content to a file
-    with open('data/csv_files/' + file_name + '.csv', 'w') as f:
-        f.write(csv)
-        
-    # Check if the vectorstore exists
-    if os.path.exists('data/vectorstores/' + file_name + '.pkl'):
-        with open('data/vectorstores/' + file_name + '.pkl', "rb") as f:
-            docsearch = pickle.load(f)
-    else:
-        Faiss.embed_doc(file_name=file_name)
+
+    docsearch = Faiss.load_vectorstore(file_name)
+
+    if docsearch is None:
+        # Create the vectorstore
+        docsearch = Faiss.embed_doc(file_name=file_name, csv_data=csv_data)
 
     return {"data": "saved"}
 
