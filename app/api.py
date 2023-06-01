@@ -91,28 +91,16 @@ async def create_vectorstore(data: CSVData):
     file_name = item['file_name']
     csv_data = data.csv
 
-    response = ""
-
     print("INITIALISING VECTORSTORE CREATION")
 
     faiss = Faiss(file_name=file_name)
-    loaded_vectorstore = faiss.load_vectorstore()
 
-    if loaded_vectorstore is None:
-        # Create the vectorstore
-        loaded_vectorstore = faiss.embed_doc(csv_data=csv_data)
-        response = "VECTORSTORE CREATED"
-    else:
-        print("VECTORSTORE ALREADY EXISTS")
-        query= "When can I start using the insurance?"
-        result = faiss.vector_search(query= query, number_of_outputs=5)
-        print(result)
-        #Stringify the result and save it as the response
-        response = json.dumps(result)
+    # Directly create a new vectorstore, replacing the old one if it exists
+    faiss.embed_doc(csv_data=csv_data)
+    
+    print("VECTORSTORE ALREADY EXISTS")
 
-        
-
-    return {"data": response}
+    return {"data": "VECTORSTORE CREATED"}
 
 
 # Register a signal handler for SIGINT (Ctrl-C)
