@@ -46,13 +46,12 @@ class Faiss():
         # Load Data to vectorstore
         embedding = OpenAIEmbeddings()
 
-        # I'm using add_texts to run every row the embeddings and add to the Chroma vectorstore.
-        # vectorstore = vectorstore.add_texts(contents, metadata)
         vectorstore = FAISS.from_texts(
         texts=contents, embedding=embedding, metadatas=metadata)
 
         vector_file_path = VECTORSTORE_FOLDER + file_name + '.pkl'
         # Save vectorstore to a pickle file
         with open(vector_file_path, "wb") as f:
+            print("SAVING VECTORSTORE TO PICKLE FILE")
             pickle.dump(vectorstore, f)
 
