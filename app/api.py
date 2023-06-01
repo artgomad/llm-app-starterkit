@@ -64,10 +64,9 @@ async def websocket_endpoint(websocket: WebSocket):
          # Retrieve context from vectorstore
         if knowledge_base is not None:
             # Use the last 5 chatlog items as search query
-            query = chatlog_strings #chatlog[-1]['content']
+            query = chatlog[-1]['content'] #chatlog_strings #
             faiss = Faiss(file_name=knowledge_base)
-            result = faiss.vector_search(query= query, number_of_outputs=5)
-            print(result)
+            result = faiss.vector_search(query= query, number_of_outputs=3)
             context = json.dumps(result)
 
         chat_chain = BasicChatChain.create_chain()
