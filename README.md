@@ -25,6 +25,7 @@
 
 5. Debug Heroku
    ```sh
+   $ heroku login
    $ heroku logs --tail --app llm-app-starterkit
    ```
 

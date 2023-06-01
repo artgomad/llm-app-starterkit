@@ -88,6 +88,8 @@ async def create_vectorstore(data: CSVData):
     if docsearch is None:
         # Create the vectorstore
         docsearch = Faiss.embed_doc(file_name=file_name, csv_data=csv_data)
+    else:
+        print("VECTORSTORE ALREADY EXISTS")
 
     return {"data": "saved"}
 
