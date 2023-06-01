@@ -81,6 +81,8 @@ async def create_vectorstore(data: CSVData):
     file_name = item['file_name']
     csv_data = data.csv
 
+    response = ""
+
     print("INITIALISING VECTORSTORE CREATION")
 
     docsearch = Faiss.load_vectorstore(file_name)
@@ -88,10 +90,12 @@ async def create_vectorstore(data: CSVData):
     if docsearch is None:
         # Create the vectorstore
         docsearch = Faiss.embed_doc(file_name=file_name, csv_data=csv_data)
+        response = "VECTORSTORE CREATED"
     else:
         print("VECTORSTORE ALREADY EXISTS")
+        response = "VECTORSTORE ALREADY EXISTS"
 
-    return {"data": "saved"}
+    return {"data": response}
 
 
 # Register a signal handler for SIGINT (Ctrl-C)
