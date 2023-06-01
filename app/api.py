@@ -11,7 +11,6 @@ import asyncio
 import signal
 from app.chains.BasicChatChain import BasicChatChain
 from app.utils.vectorstores.Faiss import Faiss
-from definitions import VECTORSTORE_FOLDER, CSV_FOLDER
 
 
 load_dotenv()

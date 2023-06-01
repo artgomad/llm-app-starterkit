@@ -7,7 +7,7 @@ import csv
 from typing import List
 from dotenv import load_dotenv
 import openai
-from definitions import ROOT_DIR, VECTORSTORE_FOLDER, CSV_FOLDER
+from definitions import VECTORSTORE_FOLDER
 
 
 
@@ -18,7 +18,7 @@ class Faiss():
 
     @staticmethod
     def load_vectorstore(file_name):
-        # Check if the vectorstore exists
+        # Check if the pickle file exists in vecotrstore folder
         if os.path.exists(VECTORSTORE_FOLDER + file_name + '.pkl'):
             # Load the vectorstore
             with open(VECTORSTORE_FOLDER + file_name + '.pkl', "rb") as f:
