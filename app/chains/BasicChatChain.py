@@ -23,6 +23,7 @@ RESET = "\033[0m"
 class CustomPromptTemplate(BaseChatPromptTemplate):
     def format_messages(self, **kwargs) -> str:
         kwargs["chat_history"] = kwargs.get("chat_history", "")
+        kwargs["context"] = kwargs.get("context", "")
 
         system_message = kwargs.get("system_message", "")
 
@@ -42,7 +43,7 @@ class BasicChatChain():
     def create_chain():
         prompt = CustomPromptTemplate(
             input_variables=["chat_history",
-                             "system_message", "user_message_template"],
+                             "system_message", "user_message_template", "context"],
         )
 
         llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')

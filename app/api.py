@@ -35,6 +35,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+class CSVData(BaseModel):
+    item: str
+    csv: str
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -48,18 +52,31 @@ async def websocket_endpoint(websocket: WebSocket):
         chatlog = payload['chatlog']
         system_message = payload['system_message']
         user_message_template = payload['user_message_template']
+        knowledge_base = payload['knowledge_base']
 
         chatlog_strings = ""
+        context = ""
+   
         # Format chatlog to be fed as agent memory
         for item in chatlog:
             chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
+
+         # Retrieve context from vectorstore
+        if knowledge_base is not None:
+            # Use the last 5 chatlog items as search query
+            query = chatlog_strings #chatlog[-1]['content']
+            faiss = Faiss(file_name=knowledge_base)
+            result = faiss.vector_search(query= query, number_of_outputs=5)
+            print(result)
+            context = json.dumps(result)
 
         chat_chain = BasicChatChain.create_chain()
 
         llm_response = chat_chain.run(
             {'system_message': system_message,
              'user_message_template': user_message_template,
-             'chat_history': chatlog_strings})
+             'chat_history': chatlog_strings,
+             'context': context})
 
         print('llm response = ')
         print(llm_response)
@@ -67,12 +84,6 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_json({
             "data":  llm_response,
         })
-
-
-class CSVData(BaseModel):
-    item: str
-    csv: str
-
 
 
 @app.post("/create_vectorstore")
