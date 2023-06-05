@@ -122,9 +122,10 @@ async def websocket_endpoint_search_database(websocket: WebSocket):
 
     # Directly create a new vectorstore, replacing the old one if it exists
     docs, docs_content = faiss.vector_search(query=query, number_of_outputs=number_of_outputs)
+    context = json.dumps(docs_content)
 
     # Send a response back to the client
-    await websocket.send_json({"data": docs})
+    await websocket.send_json({"data": context})
 
 
 # Register a signal handler for SIGINT (Ctrl-C)
