@@ -24,6 +24,7 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
     def format_messages(self, **kwargs) -> str:
         kwargs["chat_history"] = kwargs.get("chat_history", "")
         kwargs["context"] = kwargs.get("context", "")
+        kwargs["user_question"] = kwargs.get("user_question", "")
 
         system_message_template = kwargs.get("system_message", "")
         system_message = system_message_template.format(**kwargs)
@@ -44,7 +45,7 @@ class BasicChatChain():
     def create_chain():
         prompt = CustomPromptTemplate(
             input_variables=["chat_history",
-                             "system_message", "user_message_template", "context"],
+                             "system_message", "user_message_template", "context", "user_question"],
         )
 
         llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')

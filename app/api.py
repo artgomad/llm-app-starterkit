@@ -61,6 +61,8 @@ async def websocket_endpoint(websocket: WebSocket):
         for item in chatlog:
             chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
 
+        user_question = chatlog[-1]['content']
+
          # Retrieve context from vectorstore
         if knowledge_base is not None:
             # Use the last 5 chatlog items as search query
@@ -75,7 +77,8 @@ async def websocket_endpoint(websocket: WebSocket):
             {'system_message': system_message,
              'user_message_template': user_message_template,
              'chat_history': chatlog_strings,
-             'context': context})
+             'context': context,
+             'user_question': user_question})
 
         print('llm response = ')
         print(llm_response)
