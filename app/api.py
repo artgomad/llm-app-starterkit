@@ -68,8 +68,8 @@ async def websocket_endpoint(websocket: WebSocket):
             # Use the last 5 chatlog items as search query
             query = chatlog[-1]['content'] #chatlog_strings #
             faiss = Faiss(file_name=knowledge_base)
-            result = faiss.vector_search(query= query, number_of_outputs=3)
-            context = json.dumps(result)
+            docs, docs_content = faiss.vector_search(query= query, number_of_outputs=3)
+            context = json.dumps(docs_content)
 
         chat_chain = BasicChatChain.create_chain()
 
