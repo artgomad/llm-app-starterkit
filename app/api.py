@@ -103,6 +103,29 @@ async def create_vectorstore(data: CSVData):
 
     return {"data": "VECTORSTORE CREATED"}
 
+@app.websocket("/search-database")
+async def websocket_endpoint_search_database(websocket: WebSocket):
+
+    await websocket.accept()
+
+    # Receive the JSON payload
+    payload_str = await websocket.receive_text()
+    payload = json.loads(payload_str)
+
+    query = payload['query']
+    knowledge_base = payload['knowledge_base']
+    number_of_outputs = payload['number_of_outputs']
+
+    print("query = ", query)
+
+    faiss = Faiss(file_name=knowledge_base)
+
+    # Directly create a new vectorstore, replacing the old one if it exists
+    docs, docs_content = faiss.vector_search(query=query, number_of_outputs=number_of_outputs)
+
+    # Send a response back to the client
+    await websocket.send_json({"data": docs})
+
 
 # Register a signal handler for SIGINT (Ctrl-C)
 def handle_exit_signal(signum, frame):

@@ -78,5 +78,5 @@ class Faiss():
 
         print(docs_headers)
 
-        return docs_content
+        return docs, docs_content
 
