@@ -97,8 +97,6 @@ async def create_vectorstore(data: CSVData):
 
     # Directly create a new vectorstore, replacing the old one if it exists
     faiss.embed_doc(csv_data=csv_data)
-    
-    print("VECTORSTORE ALREADY EXISTS")
 
     return {"data": "VECTORSTORE CREATED"}
 

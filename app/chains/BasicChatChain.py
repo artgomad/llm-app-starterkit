@@ -25,7 +25,8 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
         kwargs["chat_history"] = kwargs.get("chat_history", "")
         kwargs["context"] = kwargs.get("context", "")
 
-        system_message = kwargs.get("system_message", "")
+        system_message_template = kwargs.get("system_message", "")
+        system_message = system_message_template.format(**kwargs)
 
         user_message_template = kwargs.get("user_message_template", "")
         user_message = user_message_template.format(**kwargs)
