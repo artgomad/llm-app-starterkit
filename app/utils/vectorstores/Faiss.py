@@ -71,8 +71,7 @@ class Faiss():
         docs_content = ""
         docs_result = []
         for doc in docs:
-             # Convert metadata object to dictionary
-            metadata_dict = doc.metadata.__dict__
+            
 
             docs_headers += "- " + \
                 list(doc.metadata.values())[0] + ", " + \
