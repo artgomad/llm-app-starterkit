@@ -69,14 +69,24 @@ class Faiss():
         docs = vectorstore.similarity_search(query, number_of_outputs)
         docs_headers = ""
         docs_content = ""
+        docs_result = []
         for doc in docs:
+             # Convert metadata object to dictionary
+            metadata_dict = doc.metadata.__dict__
+
             docs_headers += "- " + \
                 list(doc.metadata.values())[0] + ", " + \
-                list(doc.metadata.values())[1] + "\n\n"
+                list(doc.metadata.values())[1] + ", " + doc.metadata['content'] + "\n\n"
             
             docs_content += doc.metadata['content']
 
+            doc_dict = {
+            'metadata': metadata_dict,
+            'content': docs_content
+            }
+            docs_result.append(doc_dict)
+
         print(docs_headers)
 
-        return docs, docs_content
+        return docs_result, docs_content
 
