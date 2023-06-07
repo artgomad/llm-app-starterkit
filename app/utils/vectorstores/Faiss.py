@@ -81,7 +81,7 @@ class Faiss():
             docs_content += doc.metadata['content']
 
             doc_dict = {
-            'metadata': metadata_dict,
+            'metadata': doc.metadata,
             'content': docs_content
             }
             docs_result.append(doc_dict)
