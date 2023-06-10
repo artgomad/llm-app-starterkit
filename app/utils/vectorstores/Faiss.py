@@ -66,26 +66,22 @@ class Faiss():
         print('User question: ' + query)
 
         # Get the top X documents from the vectorstore
-        docs = vectorstore.similarity_search(query, number_of_outputs)
-        docs_headers = ""
+        docs_and_scores = vectorstore.similarity_search_with_score(query, number_of_outputs)
+        #docs = vectorstore.similarity_search(query, number_of_outputs)
+
         docs_content = ""
         docs_result = []
-        for doc in docs:
-            
-
-            docs_headers += "- " + \
-                list(doc.metadata.values())[0] + ", " + \
-                list(doc.metadata.values())[1] + ", " + doc.metadata['content'] + "\n\n"
+        for doc, score in docs_and_scores:
             
             docs_content += doc.metadata['content']
+            doc.metadata['score'] = score
 
             doc_dict = {
             'metadata': doc.metadata,
             'content': docs_content
             }
+            print(doc_dict)
             docs_result.append(doc_dict)
-
-        print(docs_headers)
 
         return docs_result, docs_content
 
