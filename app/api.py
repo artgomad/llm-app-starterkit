@@ -80,7 +80,7 @@ async def websocket_endpoint(websocket: WebSocket):
             print('context = ')
             print(context)
 
-            if context is "":
+            if context == "":
                 print('No context found')
                 returned_context = "The knowledge base you defined doesn't exit yet. Execute the code from your Google Sheets App Script extension"
             else:
@@ -93,6 +93,7 @@ async def websocket_endpoint(websocket: WebSocket):
             llm_response = chat_chain.run(
             {'system_message': system_message,
              'user_message_template': user_message_template,
+             'chatlog': chatlog,
              'chat_history': chatlog_strings,
              'context': context,
              'user_question': user_question})

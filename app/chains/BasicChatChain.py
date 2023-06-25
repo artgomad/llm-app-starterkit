@@ -1,4 +1,4 @@
-from langchain.schema import HumanMessage, SystemMessage
+from langchain.schema import HumanMessage, SystemMessage, AIChatMessage
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain import LLMChain
@@ -22,7 +22,8 @@ RESET = "\033[0m"
 
 class CustomPromptTemplate(BaseChatPromptTemplate):
     def format_messages(self, **kwargs) -> str:
-        
+            chatlog = kwargs.get("chatlog", [])
+            
             kwargs["chat_history"] = kwargs.get("chat_history", "")
             kwargs["context"] = kwargs.get("context", "")
             kwargs["user_question"] = kwargs.get("user_question", "")
@@ -30,11 +31,19 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
             system_message_template = kwargs.get("system_message", "")
             system_message = system_message_template.format(**kwargs)
 
-            user_message_template = kwargs.get("user_message_template", "")
-            user_message = user_message_template.format(**kwargs)
+            #user_message_template = kwargs.get("user_message_template", "")
+            #user_message = user_message_template.format(**kwargs)
+            
+            messages = []
+            for item in chatlog:
+                 if item['role'] == 'user':
+                     messages.append(HumanMessage(content=item['content']))
+                 else: #elif item['role'] == 'assistant':
+                     messages.append(AIChatMessage(content=item['content']))   
 
-            llm_prompt_input = [SystemMessage(
-                content=system_message), HumanMessage(content=user_message)]
+            # Add system message as last message
+            llm_prompt_input = messages.append(SystemMessage(
+                content=system_message))
 
             print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
             print(llm_prompt_input)
@@ -46,7 +55,7 @@ class BasicChatChain():
     def create_chain(temperature, model_name):
         prompt = CustomPromptTemplate(
             input_variables=["chat_history",
-                             "system_message", "user_message_template", "context", "user_question"],
+                             "system_message", "chatlog", "user_message_template", "context", "user_question"],
         )
 
         llm = ChatOpenAI(temperature=temperature, model_name=model_name)
