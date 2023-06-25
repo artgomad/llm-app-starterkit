@@ -54,14 +54,10 @@ async def websocket_endpoint(websocket: WebSocket):
         system_message = payload['system_message']
         user_message_template = payload['user_message_template']
         knowledge_base = payload.get('knowledge_base')
-        temperature = payload.get('temperature')
-        model_name = payload.get('model_name')
-
-        if payload.get('context_items') is not None:
-            context_items = payload.get('context_items')
-        else:
-            context_items = 3
-
+        temperature = payload.get('temperature',0)
+        model_name = payload.get('model_name','gpt-3.5-turbo')
+        context_items = payload.get('context_items', 3) 
+        
         chatlog_strings = ""
         context = ""
    
@@ -112,11 +108,11 @@ async def websocket_endpoint(websocket: WebSocket):
             error_message = str(e)
             tb_str = traceback.format_exc()
             tb_lines = tb_str.split('\n')
-            last_3_lines_tb = '\n'.join(tb_lines[-4:])
-            print("ERROR: ", last_3_lines_tb)
+            last_5_lines_tb = '\n'.join(tb_lines[-6:])
+            print("ERROR: ", last_5_lines_tb)
             await websocket.send_json({
                 "error": error_message,
-                "error_traceback": last_3_lines_tb,
+                "error_traceback": last_5_lines_tb,
                 "context":  returned_context,
             })
 

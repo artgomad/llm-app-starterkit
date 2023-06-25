@@ -43,7 +43,7 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 
 
 class BasicChatChain():
-    def create_chain(temperature=0, model_name='gpt-3.5-turbo'):
+    def create_chain(temperature, model_name):
         prompt = CustomPromptTemplate(
             input_variables=["chat_history",
                              "system_message", "user_message_template", "context", "user_question"],
