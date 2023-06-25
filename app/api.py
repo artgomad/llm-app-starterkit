@@ -79,15 +79,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 returned_context = context
                 
         try:
-            chat_chain, error = BasicChatChain.create_chain()
-
-            if chat_chain is None:
-                # if chat_chain is None, there was an error creating the chain
-                error_message = "Error creating chat chain: " + str(error)
-                await websocket.send_json({
-                    "error": error_message
-                })
-                continue  # jump to the next iteration of the loop
+            chat_chain = BasicChatChain.create_chain()
 
             llm_response = chat_chain.run(
             {'system_message': system_message,
@@ -105,7 +97,7 @@ async def websocket_endpoint(websocket: WebSocket):
             })
         except Exception as e:
             # Handle specific exceptions here
-            error_message = str(e) + ": " + error
+            error_message = str(e)
             await websocket.send_json({
                 "error": error_message
             })

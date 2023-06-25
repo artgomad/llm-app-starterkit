@@ -22,7 +22,7 @@ RESET = "\033[0m"
 
 class CustomPromptTemplate(BaseChatPromptTemplate):
     def format_messages(self, **kwargs) -> str:
-        try:
+        
             kwargs["chat_history"] = kwargs.get("chat_history", "")
             kwargs["context"] = kwargs.get("context", "")
             kwargs["user_question"] = kwargs.get("user_question", "")
@@ -39,29 +39,23 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
             print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
             print(llm_prompt_input)
 
-            return llm_prompt_input, None
-    
-        except Exception as e:
-            error_message = str(e)
-            return None , error_message
+            return llm_prompt_input  
 
 
 class BasicChatChain():
     def create_chain():
-        prompt, error = CustomPromptTemplate(
+        prompt = CustomPromptTemplate(
             input_variables=["chat_history",
                              "system_message", "user_message_template", "context", "user_question"],
         )
 
         llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')
 
-        try:
             # Declare a chain that will trigger an openAI completion with the given prompt
-            llm_chain = LLMChain(
+        llm_chain = LLMChain(
                 llm=llm,
                 prompt=prompt,
             )
-        except Exception as e:
-            error = str(e)
 
-        return llm_chain, error
+
+        return llm_chain
