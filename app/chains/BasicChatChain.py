@@ -38,15 +38,15 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
                      if item == chatlog[-1]:
                          user_message_template = kwargs.get("user_message_template", "")
                          user_message = user_message_template.format(**kwargs)
-                         messages.append(HumanMessage(content=user_message))
+                         messages.append(HumanMessage(content=user_message)) 
                      else:
                          messages.append(HumanMessage(content=item['content']))
 
-                 else: #elif item['role'] == 'assistant':
-                     messages.append(AIMessage(content=item['content']))   
+                 elif item['role'] == 'system':
+                    messages.append(SystemMessage(content=system_message)) 
 
-            # Add system message as last message
-            messages.append(SystemMessage(content=system_message))
+                 else:
+                     messages.append(AIMessage(content=item['content']))   
 
             print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
             print(messages)
