@@ -57,7 +57,7 @@ async def websocket_endpoint(websocket: WebSocket):
         temperature = payload.get('temperature',0)
         model_name = payload.get('model_name','gpt-3.5-turbo')
         context_items = payload.get('context_items', 3) 
-        
+
         chatlog_strings = ""
         context = ""
    
@@ -80,9 +80,11 @@ async def websocket_endpoint(websocket: WebSocket):
             print('context = ')
             print(context)
 
-            if docs is []:
+            if context is "":
+                print('No context found')
                 returned_context = "The knowledge base you defined doesn't exit yet. Execute the code from your Google Sheets App Script extension"
             else:
+                print('We found a context!')
                 returned_context = context
                 
         try:
