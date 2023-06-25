@@ -93,7 +93,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 chat_history= chatlog_strings, 
                 context= context,
                 user_question= user_question,
-                function= functions,)
+                functions= functions,)
 
             print('llm response = ')
             print(llm_response)
