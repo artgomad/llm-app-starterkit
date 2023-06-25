@@ -22,28 +22,33 @@ RESET = "\033[0m"
 
 class CustomPromptTemplate(BaseChatPromptTemplate):
     def format_messages(self, **kwargs) -> str:
-        kwargs["chat_history"] = kwargs.get("chat_history", "")
-        kwargs["context"] = kwargs.get("context", "")
-        kwargs["user_question"] = kwargs.get("user_question", "")
+        try:
+            kwargs["chat_history"] = kwargs.get("chat_history", "")
+            kwargs["context"] = kwargs.get("context", "")
+            kwargs["user_question"] = kwargs.get("user_question", "")
 
-        system_message_template = kwargs.get("system_message", "")
-        system_message = system_message_template.format(**kwargs)
+            system_message_template = kwargs.get("system_message", "")
+            system_message = system_message_template.format(**kwargs)
 
-        user_message_template = kwargs.get("user_message_template", "")
-        user_message = user_message_template.format(**kwargs)
+            user_message_template = kwargs.get("user_message_template", "")
+            user_message = user_message_template.format(**kwargs)
 
-        llm_prompt_input = [SystemMessage(
-            content=system_message), HumanMessage(content=user_message)]
+            llm_prompt_input = [SystemMessage(
+                content=system_message), HumanMessage(content=user_message)]
 
-        print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
-        print(llm_prompt_input)
+            print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
+            print(llm_prompt_input)
 
-        return llm_prompt_input
+            return llm_prompt_input, None
+    
+        except Exception as e:
+            error_message = str(e)
+            return "" , {"error": error_message}
 
 
 class BasicChatChain():
     def create_chain():
-        prompt = CustomPromptTemplate(
+        prompt, error = CustomPromptTemplate(
             input_variables=["chat_history",
                              "system_message", "user_message_template", "context", "user_question"],
         )
@@ -56,4 +61,4 @@ class BasicChatChain():
             prompt=prompt,
         )
 
-        return llm_chain
+        return llm_chain, error

@@ -79,7 +79,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 returned_context = context
                 
         try:
-            chat_chain = BasicChatChain.create_chain()
+            chat_chain, error = BasicChatChain.create_chain()
 
             llm_response = chat_chain.run(
             {'system_message': system_message,
@@ -95,9 +95,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 "data":  llm_response,
                 "context":  returned_context,
             })
-        except websocket.exceptions.ConnectionClosedError as e:
+        except Exception as e:
             # Handle specific exceptions here
-            error_message = str(e) + " - Connection closed"
+            error_message = str(e) + ": " + error
             await websocket.send_json({
                 "error": error_message
             })
