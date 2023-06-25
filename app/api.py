@@ -81,6 +81,14 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             chat_chain, error = BasicChatChain.create_chain()
 
+            if chat_chain is None:
+                # if chat_chain is None, there was an error creating the chain
+                error_message = "Error creating chat chain: " + str(error)
+                await websocket.send_json({
+                    "error": error_message
+                })
+                continue  # jump to the next iteration of the loop
+
             llm_response = chat_chain.run(
             {'system_message': system_message,
              'user_message_template': user_message_template,

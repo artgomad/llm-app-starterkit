@@ -43,7 +43,7 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
     
         except Exception as e:
             error_message = str(e)
-            return "" , {"error": error_message}
+            return None , error_message
 
 
 class BasicChatChain():
@@ -55,10 +55,13 @@ class BasicChatChain():
 
         llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')
 
-        # Declare a chain that will trigger an openAI completion with the given prompt
-        llm_chain = LLMChain(
-            llm=llm,
-            prompt=prompt,
-        )
+        try:
+            # Declare a chain that will trigger an openAI completion with the given prompt
+            llm_chain = LLMChain(
+                llm=llm,
+                prompt=prompt,
+            )
+        except Exception as e:
+            error = str(e)
 
         return llm_chain, error
