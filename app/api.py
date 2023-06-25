@@ -97,11 +97,15 @@ async def websocket_endpoint(websocket: WebSocket):
                 "context":  returned_context,
             })
         except Exception as e:
-            print("ERROR: ", e)
             traceback.print_exc()
             error_message = str(e)
+            tb_str = traceback.format_exc()
+            tb_lines = tb_str.split('\n')
+            last_3_lines_tb = '\n'.join(tb_lines[-4:])
+            print("ERROR: ", last_3_lines_tb)
             await websocket.send_json({
                 "error": error_message,
+                "error_traceback": last_3_lines_tb,
                 "context":  returned_context,
             })
 
