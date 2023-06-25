@@ -36,10 +36,13 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
             
             messages = []
             for item in chatlog:
+                 print('item = ')
+                 print(item)
                  if item['role'] == 'user':
                      messages.append(HumanMessage(content=item['content']))
                  else: #elif item['role'] == 'assistant':
                      messages.append(AIMessage(content=item['content']))   
+
 
             # Add system message as last message
             llm_prompt_input = messages.append(SystemMessage(
