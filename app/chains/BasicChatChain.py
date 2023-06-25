@@ -1,4 +1,4 @@
-from langchain.schema import HumanMessage, SystemMessage, AIChatMessage
+from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain import LLMChain
@@ -23,7 +23,7 @@ RESET = "\033[0m"
 class CustomPromptTemplate(BaseChatPromptTemplate):
     def format_messages(self, **kwargs) -> str:
             chatlog = kwargs.get("chatlog", [])
-            
+
             kwargs["chat_history"] = kwargs.get("chat_history", "")
             kwargs["context"] = kwargs.get("context", "")
             kwargs["user_question"] = kwargs.get("user_question", "")
@@ -39,7 +39,7 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
                  if item['role'] == 'user':
                      messages.append(HumanMessage(content=item['content']))
                  else: #elif item['role'] == 'assistant':
-                     messages.append(AIChatMessage(content=item['content']))   
+                     messages.append(AIMessage(content=item['content']))   
 
             # Add system message as last message
             llm_prompt_input = messages.append(SystemMessage(
