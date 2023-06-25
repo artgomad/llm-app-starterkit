@@ -13,9 +13,12 @@ def format_messages(chatlog=[], chat_history="", context="", user_question=""):
         elif item['role'] == 'system':
             system_message = item['content'].format(chat_history=chat_history, context=context, user_question=user_question)
             messages.append({"role": "user", "content": system_message})
+        
+        elif item['role'] == 'assistant':
+            messages.append({"role": "assistant", "content": item['content']})
 
-        else:
-            messages.append({"role": "ai", "content": item['content']})
+        elif item['role'] == 'function':
+            messages.append({"role": "function", "content": item['content']})
 
     print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
     print(messages)
