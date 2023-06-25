@@ -62,7 +62,7 @@ async def websocket_endpoint(websocket: WebSocket):
             chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
 
         user_question = chatlog[-1]['content']
-        returned_context = "You haven't defined any knowledge base yet."
+        returned_context = "You haven't defined any knowledge base."
 
          # Retrieve context from vectorstore
         if knowledge_base is not None:
@@ -74,25 +74,35 @@ async def websocket_endpoint(websocket: WebSocket):
             context = json.dumps(docs_content)
 
             if docs is not []:
+                returned_context = "The knowledge base you defined doesn't exit yet. Execute the code from your Google Sheets App Script extension"
+            else:
                 returned_context = context
                 
+        try:
+            chat_chain = BasicChatChain.create_chain()
 
-        chat_chain = BasicChatChain.create_chain()
-
-        llm_response = chat_chain.run(
+            llm_response = chat_chain.run(
             {'system_message': system_message,
              'user_message_template': user_message_template,
              'chat_history': chatlog_strings,
              'context': context,
              'user_question': user_question})
 
-        print('llm response = ')
-        print(llm_response)
+            print('llm response = ')
+            print(llm_response)
 
-        await websocket.send_json({
-            "data":  llm_response,
-            "context":  returned_context,
-        })
+            await websocket.send_json({
+                "data":  llm_response,
+                "context":  returned_context,
+            })
+        except websocket.exceptions.ConnectionClosedError as e:
+            # Handle specific exceptions here
+            error_message = str(e) + " - Connection closed"
+            await websocket.send_json({
+                "error": error_message
+            })
+
+       
 
 
 @app.post("/create_vectorstore")
