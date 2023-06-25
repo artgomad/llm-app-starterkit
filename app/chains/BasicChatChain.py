@@ -43,13 +43,13 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 
 
 class BasicChatChain():
-    def create_chain():
+    def create_chain(temperature=0, model_name='gpt-3.5-turbo'):
         prompt = CustomPromptTemplate(
             input_variables=["chat_history",
                              "system_message", "user_message_template", "context", "user_question"],
         )
 
-        llm = ChatOpenAI(temperature=0, model_name='gpt-3.5-turbo')
+        llm = ChatOpenAI(temperature=temperature, model_name=model_name)
 
             # Declare a chain that will trigger an openAI completion with the given prompt
         llm_chain = LLMChain(

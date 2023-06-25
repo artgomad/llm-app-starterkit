@@ -54,6 +54,13 @@ async def websocket_endpoint(websocket: WebSocket):
         system_message = payload['system_message']
         user_message_template = payload['user_message_template']
         knowledge_base = payload.get('knowledge_base')
+        temperature = payload.get('temperature')
+        model_name = payload.get('model_name')
+
+        if payload.get('context_items') is not None:
+            context_items = payload.get('context_items')
+        else:
+            context_items = 3
 
         chatlog_strings = ""
         context = ""
@@ -70,20 +77,20 @@ async def websocket_endpoint(websocket: WebSocket):
             # Use the last 5 chatlog items as search query
             query = chatlog[-1]['content'] #chatlog_strings #
             faiss = Faiss(file_name=knowledge_base)
-            docs, docs_content = faiss.vector_search(query= query, number_of_outputs=3)
+            docs, docs_content = faiss.vector_search(query= query, number_of_outputs=context_items)
 
             #context = json.dumps(docs_content)
             context = docs_content
             print('context = ')
             print(context)
 
-            if docs is not []:
+            if docs is []:
                 returned_context = "The knowledge base you defined doesn't exit yet. Execute the code from your Google Sheets App Script extension"
             else:
                 returned_context = context
                 
         try:
-            chat_chain = BasicChatChain.create_chain()
+            chat_chain = BasicChatChain.create_chain(temperature=temperature, model_name=model_name)
 
             llm_response = chat_chain.run(
             {'system_message': system_message,
