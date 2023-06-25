@@ -51,8 +51,6 @@ async def websocket_endpoint(websocket: WebSocket):
         payload = json.loads(data)
 
         chatlog = payload['chatlog']
-        #system_message = payload['system_message']
-        user_message_template = payload['user_message_template']
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature',0)
         model_name = payload.get('model_name','gpt-3.5-turbo')
@@ -91,9 +89,7 @@ async def websocket_endpoint(websocket: WebSocket):
             chat_chain = BasicChatChain.create_chain(temperature=temperature, model_name=model_name)
 
             llm_response = chat_chain.run(
-            {#'system_message': system_message,
-             'user_message_template': user_message_template,
-             'chatlog': chatlog,
+            {'chatlog': chatlog,
              'chat_history': chatlog_strings,
              'context': context,
              'user_question': user_question})
