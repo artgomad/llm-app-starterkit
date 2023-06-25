@@ -8,11 +8,11 @@ def format_messages(chatlog=[], chat_history="", context="", user_question=""):
     for item in chatlog:
         if item['role'] == 'user':
             user_message = item['content'].format(chat_history=chat_history, context=context, user_question=user_question)
-            messages.append({"role": "system", "content": user_message})
+            messages.append({"role": "user", "content": user_message})
 
         elif item['role'] == 'system':
             system_message = item['content'].format(chat_history=chat_history, context=context, user_question=user_question)
-            messages.append({"role": "user", "content": system_message})
+            messages.append({"role": "system", "content": system_message})
         
         elif item['role'] == 'assistant':
             messages.append({"role": "assistant", "content": item['content']})
