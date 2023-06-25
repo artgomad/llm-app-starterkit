@@ -45,13 +45,12 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 
 
             # Add system message as last message
-            llm_prompt_input = messages.append(SystemMessage(
-                content=system_message))
+            messages.append(SystemMessage(content=system_message))
 
             print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
-            print(llm_prompt_input)
+            print(messages)
 
-            return llm_prompt_input  
+            return messages
 
 
 class BasicChatChain():
