@@ -70,7 +70,7 @@ class Faiss():
             docs_result = []
             for doc, score in docs_and_scores:
             
-                docs_content = doc.metadata['content']
+                docs_content += doc.metadata['content'] + '\n\n'
                 doc.metadata['score'] = float(score)
 
                 doc_dict = {

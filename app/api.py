@@ -72,7 +72,10 @@ async def websocket_endpoint(websocket: WebSocket):
             faiss = Faiss(file_name=knowledge_base)
             docs, docs_content = faiss.vector_search(query= query, number_of_outputs=3)
 
-            context = json.dumps(docs_content)
+            #context = json.dumps(docs_content)
+            context = docs_content
+            print('context = ')
+            print(context)
 
             if docs is not []:
                 returned_context = "The knowledge base you defined doesn't exit yet. Execute the code from your Google Sheets App Script extension"
@@ -96,6 +99,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "data":  llm_response,
                 "context":  returned_context,
             })
+
         except Exception as e:
             traceback.print_exc()
             error_message = str(e)
