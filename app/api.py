@@ -62,6 +62,7 @@ async def websocket_endpoint(websocket: WebSocket):
             chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
 
         user_question = chatlog[-1]['content']
+        returned_context = "You haven't defined any knowledge base yet."
 
          # Retrieve context from vectorstore
         if knowledge_base is not None:
@@ -72,9 +73,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             context = json.dumps(docs_content)
 
-            if docs is []:
-                returned_context = "You haven't defined any knowledge base yet."
-            else:
+            if docs is not []:
                 returned_context = context
                 
 
