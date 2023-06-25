@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
 import openai
 from dotenv import load_dotenv
+import traceback
 import os
 import json
 import pickle
@@ -96,10 +97,12 @@ async def websocket_endpoint(websocket: WebSocket):
                 "context":  returned_context,
             })
         except Exception as e:
-            # Handle specific exceptions here
+            print("ERROR: ", e)
+            traceback.print_exc()
             error_message = str(e)
             await websocket.send_json({
-                "error": error_message
+                "error": error_message,
+                "context":  returned_context,
             })
 
        
