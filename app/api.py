@@ -53,8 +53,9 @@ async def websocket_endpoint(websocket: WebSocket):
         chatlog = payload['chatlog']
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature',0)
-        model_name = payload.get('model_name','gpt-3.5-turbo')
+        model_name = payload.get('model','gpt-3.5-turbo')
         context_items = payload.get('context_items', 3) 
+        functions = payload.get('functions', None)
 
         chatlog_strings = ""
         context = ""
@@ -85,13 +86,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 returned_context = context
                 
         try:
-            llm_response = basicOpenAICompletion(
+            llm_response, inputPrompt = basicOpenAICompletion(
                 temperature=temperature, 
                 model_name=model_name, 
                 chatlog= chatlog, 
                 chat_history= chatlog_strings, 
                 context= context,
-                user_question= user_question)
+                user_question= user_question,
+                function= functions,)
 
             print('llm response = ')
             print(llm_response)
@@ -99,6 +101,7 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json({
                 "data":  llm_response,
                 "context":  returned_context,
+                "inputPrompt": inputPrompt,
             })
 
         except Exception as e:

@@ -25,14 +25,13 @@ def format_messages(chatlog=[], chat_history="", context="", user_question=""):
     return messages
 
 
-def basicOpenAICompletion(temperature, model_name, chatlog, chat_history, context, user_question):
+def basicOpenAICompletion(temperature, model_name, chatlog, chat_history, context, user_question, functions):
     messages = format_messages(chatlog, chat_history, context, user_question)
     response = openai.ChatCompletion.create(
         model=model_name,
         messages=messages,
         temperature=temperature,
+        functions=functions,
     )
-    #Add a new attribute to the response object
-    setattr(response, 'inputPrompt', messages)
-
-    return response
+    
+    return response, messages
