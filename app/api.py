@@ -10,7 +10,7 @@ import pickle
 from pydantic import BaseModel
 import asyncio
 import signal
-from app.chains.BasicChatChain import BasicChatChain
+from app.chains.BasicChatChain import BasicChatChain, basicOpenAICompletion
 from app.utils.vectorstores.Faiss import Faiss
 
 
@@ -88,11 +88,20 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             chat_chain = BasicChatChain.create_chain(temperature=temperature, model_name=model_name)
 
+            """
             llm_response = chat_chain.run(
             {'chatlog': chatlog,
              'chat_history': chatlog_strings,
              'context': context,
              'user_question': user_question})
+            """
+            llm_response = basicOpenAICompletion(
+                temperature=temperature, 
+                model_name=model_name, 
+                chatlog= chatlog, 
+                chat_history= chatlog_strings, 
+                context= context,
+                user_question= user_question)
 
             print('llm response = ')
             print(llm_response)

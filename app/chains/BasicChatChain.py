@@ -2,6 +2,7 @@ from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain import LLMChain
+import openai
 
 from dotenv import load_dotenv
 from fastapi import WebSocket
@@ -58,3 +59,31 @@ class BasicChatChain():
 
 
         return llm_chain
+    
+def format_messages(chatlog=[], chat_history="", context="", user_question=""):
+    messages = []
+    for item in chatlog:
+        if item['role'] == 'user':
+            user_message = item['content'].format(chat_history=chat_history, context=context, user_question=user_question)
+            messages.append({"role": "system", "content": user_message})
+
+        elif item['role'] == 'system':
+            system_message = item['content'].format(chat_history=chat_history, context=context, user_question=user_question)
+            messages.append({"role": "user", "content": system_message})
+
+        else:
+            messages.append({"role": "ai", "content": item['content']})
+
+    print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
+    print(messages)
+    return messages
+
+def basicOpenAICompletion(temperature, model_name, chatlog, chat_history, context, user_question):
+    messages = format_messages(chatlog, chat_history, context, user_question)
+    response = openai.ChatCompletion.create(
+        model=model_name,
+        messages=messages,
+        temperature=temperature,
+    )
+
+    return response
