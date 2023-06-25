@@ -28,8 +28,8 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
             kwargs["context"] = kwargs.get("context", "")
             kwargs["user_question"] = kwargs.get("user_question", "")
 
-            system_message_template = kwargs.get("system_message", "")
-            system_message = system_message_template.format(**kwargs)
+            #system_message_template = kwargs.get("system_message", "")
+            #system_message = system_message_template.format(**kwargs)
             
             messages = []
             for item in chatlog:
@@ -43,6 +43,7 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
                          messages.append(HumanMessage(content=item['content']))
 
                  elif item['role'] == 'system':
+                    system_message = item['content'].format(**kwargs)
                     messages.append(SystemMessage(content=system_message)) 
 
                  else:
@@ -56,8 +57,8 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 class BasicChatChain():
     def create_chain(temperature, model_name):
         prompt = CustomPromptTemplate(
-            input_variables=["chat_history",
-                             "system_message", "chatlog", "user_message_template", "context", "user_question"],
+            input_variables=["chat_history" 
+                             , "chatlog", "user_message_template", "context", "user_question"],#"system_message"
         )
 
         llm = ChatOpenAI(temperature=temperature, model_name=model_name)
