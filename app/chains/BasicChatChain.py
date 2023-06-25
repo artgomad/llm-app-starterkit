@@ -34,12 +34,13 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
             messages = []
             for item in chatlog:
                  if item['role'] == 'user':
-                     messages.append(HumanMessage(content=item['content']))
                      # if this is the last message from chatlog
                      if item == chatlog[-1]:
                          user_message_template = kwargs.get("user_message_template", "")
                          user_message = user_message_template.format(**kwargs)
                          messages.append(HumanMessage(content=user_message))
+                     else:
+                         messages.append(HumanMessage(content=item['content']))
 
                  else: #elif item['role'] == 'assistant':
                      messages.append(AIMessage(content=item['content']))   
