@@ -55,33 +55,37 @@ class Faiss():
             pickle.dump(vectorstore, f)
 
     def vector_search(self, query: str, number_of_outputs:int) -> str:
+        print('User question: ' + query)
         # Check if the pickle file exists in vecotrstore folder and load it
         if os.path.exists(self.vectorstore):
             with open(self.vectorstore, "rb") as f:
                 vectorstore = pickle.load(f)
                 print("loading vectorstore...")
+
+            # Get the top X documents from the vectorstore
+            docs_and_scores = vectorstore.similarity_search_with_score(query, number_of_outputs)
+            #docs = vectorstore.similarity_search(query, number_of_outputs)
+
+            docs_content = ""
+            docs_result = []
+            for doc, score in docs_and_scores:
+            
+                docs_content = doc.metadata['content']
+                doc.metadata['score'] = float(score)
+
+                doc_dict = {
+                    'metadata': doc.metadata,
+                    'content': docs_content
+                }
+                print(doc_dict)
+                docs_result.append(doc_dict)
+
+            return docs_result, docs_content
         else:
             print("vectorstore not found")
+            return [], ""
 
-        print('User question: ' + query)
+        
 
-        # Get the top X documents from the vectorstore
-        docs_and_scores = vectorstore.similarity_search_with_score(query, number_of_outputs)
-        #docs = vectorstore.similarity_search(query, number_of_outputs)
-
-        docs_content = ""
-        docs_result = []
-        for doc, score in docs_and_scores:
-            
-            docs_content = doc.metadata['content']
-            doc.metadata['score'] = float(score)
-
-            doc_dict = {
-            'metadata': doc.metadata,
-            'content': docs_content
-            }
-            print(doc_dict)
-            docs_result.append(doc_dict)
-
-        return docs_result, docs_content
+        
 

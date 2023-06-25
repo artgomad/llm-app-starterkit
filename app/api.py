@@ -52,7 +52,7 @@ async def websocket_endpoint(websocket: WebSocket):
         chatlog = payload['chatlog']
         system_message = payload['system_message']
         user_message_template = payload['user_message_template']
-        knowledge_base = payload['knowledge_base']
+        knowledge_base = payload.get('knowledge_base')
 
         chatlog_strings = ""
         context = ""
@@ -69,7 +69,14 @@ async def websocket_endpoint(websocket: WebSocket):
             query = chatlog[-1]['content'] #chatlog_strings #
             faiss = Faiss(file_name=knowledge_base)
             docs, docs_content = faiss.vector_search(query= query, number_of_outputs=3)
+
             context = json.dumps(docs_content)
+
+            if docs is []:
+                returned_context = "You haven't defined any knowledge base yet."
+            else:
+                returned_context = context
+                
 
         chat_chain = BasicChatChain.create_chain()
 
@@ -85,6 +92,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         await websocket.send_json({
             "data":  llm_response,
+            "context":  returned_context,
         })
 
 
