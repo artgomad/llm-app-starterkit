@@ -160,6 +160,34 @@ async def websocket_endpoint_search_database(websocket: WebSocket):
     await websocket.send_json({"data": context})
 
 
+@app.websocket("/ws-audio")
+async def websocket_endpoint_audio(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        # Receive the binary audio data
+        audio_data = await websocket.receive_bytes()
+        # Process the received data from the client
+        if audio_data:
+            temporary_dir = os.path.abspath('data/temporary_files')
+
+            with open(os.path.join(temporary_dir, "audio.webm"), "wb") as f:
+                f.write(audio_data)
+                print("Saved audio file to audio.webm")
+
+            audio_file = open(os.path.join(temporary_dir, "audio.webm"), "rb")
+            transcript = openai.Audio.transcribe("whisper-1", audio_file)
+
+            # Save first transcript localy
+            with open(os.path.join(temporary_dir, "transcript.txt"), "w") as f:
+                    f.write(transcript.text)
+                    print(f"{transcript.text} saved")
+
+        else:
+            print("Received invalid payload")
+
+
+
 # Register a signal handler for SIGINT (Ctrl-C)
 def handle_exit_signal(signum, frame):
     global exit_flag
