@@ -183,6 +183,8 @@ async def websocket_endpoint_audio(websocket: WebSocket):
                     f.write(transcript.text)
                     print(f"{transcript.text} saved")
 
+            await websocket.send_json({"data": transcript.text})
+
         else:
             print("Received invalid payload")
 
