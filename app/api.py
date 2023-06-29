@@ -165,10 +165,6 @@ async def websocket_endpoint_audio(websocket: WebSocket):
     await websocket.accept()
 
     while True:
-        # Receive the JSON payload
-        payload_str = await websocket.receive_text()
-        payload = json.loads(payload_str)
-        
         # Receive the binary audio data
         audio_data = await websocket.receive_bytes()
         # Process the received data from the client
