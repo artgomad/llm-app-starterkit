@@ -111,7 +111,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 faiss = Faiss(file_name=knowledge_base)
                 filtered_vectorstore, content_values = faiss.searchByField(
-                    field, [search_terms])
+                    field, search_terms)
 
                 # Make a new basicOpenAICompletion with the new database as context
                 try:

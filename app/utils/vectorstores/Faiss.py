@@ -67,6 +67,9 @@ class Faiss():
                 query, number_of_outputs)
             # docs = vectorstore.similarity_search(query, number_of_outputs)
 
+            docs_and_scores = vectorstore.similarity_search_with_score(
+                query, filter=dict(page=1), k=number_of_outputs, fetch_k=4)
+
             docs_content = ""
             docs_result = []
             for doc, score in docs_and_scores:
@@ -86,15 +89,18 @@ class Faiss():
             print("vectorstore not found")
             return [], ""
 
-    def searchByField(self, field: str, *search_terms):
+    def searchByField(self, field: str, search_terms: List[str]):
         # Load the vectorstore
         vectorstore = self.load_vectorstore()
         if vectorstore is None:
             print("vectorstore not found")
             return []
 
+        search_terms_str = ', '.join(search_terms)
+        all_db = vectorstore.similarity_search("search_terms_str", k=500)
+
         # Filter vectorstore
-        filtered_vectorstore = [row for row in vectorstore
+        filtered_vectorstore = [row for row in all_db
                                 if any(re.search(r'\b{}\b'.format(term.lower()), row['metadata'].get(field, '').lower())
                                        for term in search_terms)]
         # Concatenate 'content' field values
