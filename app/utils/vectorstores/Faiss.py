@@ -97,7 +97,7 @@ class Faiss():
 
         # Filter vectorstore
         filtered_vectorstore = [row for row in all_db
-                                if any(re.search(r'\b{}\b'.format(term.lower()), row['metadata'].get(field, '').lower())
+                                if any(re.search(r'\b{}\b'.format(term.lower()), row.metadata.get(field, '').lower())
                                        for term in search_terms)]
         # Concatenate 'content' field values
         content_values = "\n".join(row['content']
