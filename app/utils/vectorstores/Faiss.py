@@ -106,6 +106,7 @@ class Faiss():
             content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                          for row in filtered_vectorstore)
             print(content_values)
+
             return filtered_vectorstore, content_values
 
         # If one of the argumets is empty then return semantically related items

@@ -111,8 +111,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 print(function_call_output)
                 # Transform the arguments property from a string to JSON
                 arguments = json.loads(function_call_output['arguments'])
-                field = arguments.get('field', "")
-                search_terms = arguments.get('search_terms', [])
+                field = arguments['field']
+                search_terms = arguments['search_terms']
+                # field = arguments.get('field', "")
+                # search_terms = arguments.get('search_terms', [])
 
                 faiss = Faiss(file_name=knowledge_base)
                 filtered_vectorstore, content_values = faiss.searchByField(
