@@ -95,8 +95,6 @@ class Faiss():
         search_terms_str = ', '.join(search_terms)
         all_db = vectorstore.similarity_search(search_terms_str, k=500)
 
-        filtered_vectorstore = []
-
         # if field and search_terms are not empty then filter vectorstore
         if field and search_terms_str:
             print(f"Searching {search_terms} in {field}")
@@ -108,12 +106,17 @@ class Faiss():
             content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                          for row in filtered_vectorstore)
             print(content_values)
+            return filtered_vectorstore, content_values
+
         # If one of the argumets is empty then return semantically related items
         else:
             print(
-                f"Similarity searching {search_terms_str} in the embedded content")
+                f"Searching {search_terms_str} by similarity in the embedded content")
+
             docs_and_scores = vectorstore.similarity_search_with_score(
                 search_terms_str, k=20)
+
+            filtered_vectorstore = []
 
             for doc, score in docs_and_scores:
                 if score < 0.55:
@@ -124,4 +127,4 @@ class Faiss():
                                          for row in filtered_vectorstore)
             print(content_values)
 
-        return filtered_vectorstore, content_values
+            return filtered_vectorstore, content_values
