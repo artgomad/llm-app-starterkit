@@ -105,18 +105,36 @@ async def websocket_endpoint(websocket: WebSocket):
 
             function_call_output = llm_response['choices'][0]['message'].get(
                 'function_call')
+            print('function_call_output = ')
+            print(function_call_output)
+
             if function_call_output is not None:
                 await websocket.send_json({"message": "Searching our product database..."})
                 print('Calling a function!')
                 print(function_call_output)
-                # Transform the arguments property from a string to JSON
-                arguments = json.loads(function_call_output['arguments'])
-                field = arguments.get('field', "")
-                search_terms = arguments.get('search_terms', [])
 
-                faiss = Faiss(file_name=knowledge_base)
-                filtered_vectorstore, content_values = faiss.searchByField(
-                    field, search_terms)
+                # With this function I want to return the basic content of all products that match the search terms
+                if function_call_output == 'search_food_products':
+                    # Transform the arguments property from a string to JSON
+                    arguments = json.loads(function_call_output['arguments'])
+                    field = arguments.get('field', "")
+                    search_terms = arguments.get('search_terms', [])
+
+                    faiss = Faiss(file_name=knowledge_base)
+                    filtered_vectorstore, content_values = faiss.searchByField(
+                        field, search_terms)
+
+                # With this function I want to return all the metadata of a single product
+                elif function_call_output == 'read_product_details':
+                    arguments = json.loads(function_call_output['arguments'])
+                    product_name = arguments.get('product_name', "")
+
+                    faiss = Faiss(file_name=knowledge_base)
+                    all_product_info, embedded_content = faiss.vector_search(
+                        query=product_name, number_of_outputs=1)
+
+                    content_values = "\n\n".join(
+                        doc['content'] for doc in all_product_info)
 
                 await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})
                 # Make a new basicOpenAICompletion with the new database as context
