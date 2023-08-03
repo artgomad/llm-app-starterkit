@@ -104,6 +104,8 @@ async def websocket_endpoint(websocket: WebSocket):
             function_call_output = llm_response['choices'][0]['message'].get(
                 'function_call')
             if function_call_output is not None:
+                print('Calling a function!')
+                print(function_call_output)
                 # Transform the arguments property from a string to JSON
                 arguments = json.loads(function_call_output['arguments'])
                 field = arguments['field']

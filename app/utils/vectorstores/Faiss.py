@@ -67,13 +67,9 @@ class Faiss():
                 query, number_of_outputs)
             # docs = vectorstore.similarity_search(query, number_of_outputs)
 
-            docs_and_scores = vectorstore.similarity_search_with_score(
-                query, filter=dict(page=1), k=number_of_outputs, fetch_k=4)
-
             docs_content = ""
             docs_result = []
             for doc, score in docs_and_scores:
-
                 docs_content += doc.metadata['content'] + '\n\n'
                 doc.metadata['score'] = float(score)
 
@@ -97,7 +93,7 @@ class Faiss():
             return []
 
         search_terms_str = ', '.join(search_terms)
-        all_db = vectorstore.similarity_search("search_terms_str", k=500)
+        all_db = vectorstore.similarity_search(search_terms_str, k=500)
 
         # Filter vectorstore
         filtered_vectorstore = [row for row in all_db
