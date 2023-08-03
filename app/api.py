@@ -101,9 +101,13 @@ async def websocket_endpoint(websocket: WebSocket):
             print('llm response = ')
             print(llm_response)
 
-            if llm_response['choices'][0]['message'].get('function_call') is not None:
-                field = llm_response['choices'][0]['message']['function_call']['arguments']['field']
-                search_terms = llm_response['choices'][0]['message']['function_call']['arguments']['search_terms']
+            function_call_output = llm_response['choices'][0]['message'].get(
+                'function_call')
+            if function_call_output is not None:
+                # Transform the arguments property from a string to JSON
+                arguments = json.loads(function_call_output['arguments'])
+                field = arguments['field']
+                search_terms = arguments['search_terms']
 
                 faiss = Faiss(file_name=knowledge_base)
                 filtered_vectorstore, content_values = faiss.searchByField(
