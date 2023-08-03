@@ -97,16 +97,18 @@ class Faiss():
 
         # if field and search_terms are not empty then filter vectorstore
         if field and search_terms_str:
+
             print(f"Searching {search_terms} in {field}")
-            print(all_db)
 
             filtered_vectorstore = [row for row in all_db
-                                    if any(re.search(r'\b{}\b'.format(term.lower()), row.metadata.get(field, '').lower())
+                                    if any(re.search(r'{}'.format(term.lower()), row.metadata.get(field, '').lower())
                                            for term in search_terms)]
+            print("filtered_vectorstore")
             print(filtered_vectorstore)
             # Concatenate 'content' field values
             content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                          for row in filtered_vectorstore)
+            print("content_values")
             print(content_values)
 
             return filtered_vectorstore, content_values
