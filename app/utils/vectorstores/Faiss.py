@@ -101,9 +101,11 @@ class Faiss():
                                        for term in search_terms)]
 
         for row in filtered_vectorstore:
-            print(row)
-        # Concatenate 'content' field values
-        # content_values = "\n".join(row.content
-          #                         for row in filtered_vectorstore)
+            print(row.page_content)
+            print(row.metadata.get(field, ''))
 
-        return filtered_vectorstore  # , content_values
+        # Concatenate 'content' field values
+        content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
+                                     for row in filtered_vectorstore)
+
+        return filtered_vectorstore, content_values
