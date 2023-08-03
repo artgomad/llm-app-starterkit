@@ -97,21 +97,28 @@ class Faiss():
         search_terms_str = ', '.join(search_terms)
         all_db = vectorstore.similarity_search(search_terms_str, k=500)
 
-        # Filter vectorstore
-        filtered_vectorstore = [row for row in all_db
-                                if any(re.search(r'\b{}\b'.format(term.lower()), row.metadata.get(field, '').lower())
-                                       for term in search_terms)]
-        """
-        for row in filtered_vectorstore:
-            print(row.page_content)
-            print("{field}:", row.metadata.get(field, ''))
-            print('\n')
-        """
+        filtered_vectorstore = []
 
-        # Concatenate 'content' field values
-        content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
-                                     for row in filtered_vectorstore)
+        # if field and search_terms are not empty then filter vectorstore
+        if field and search_terms:
+            filtered_vectorstore = [row for row in all_db
+                                    if any(re.search(r'\b{}\b'.format(term.lower()), row.metadata.get(field, '').lower())
+                                           for term in search_terms)]
+            # Concatenate 'content' field values
+            content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
+                                         for row in filtered_vectorstore)
+            print(content_values)
+        # If one of the argumets is empty then return semantically related items
+        else:
+            docs_and_scores = vectorstore.similarity_search_with_score(
+                search_terms_str, k=20)
 
-        print(content_values)
+            for doc, score in docs_and_scores:
+                if score > 0.55:
+                    # Append the doc to filtered_vectorstore
+                    filtered_vectorstore.append(doc)
+
+            content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
+                                         for row in filtered_vectorstore)
 
         return filtered_vectorstore, content_values
