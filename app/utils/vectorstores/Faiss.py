@@ -100,7 +100,7 @@ class Faiss():
                                 if any(re.search(r'\b{}\b'.format(term.lower()), row.metadata.get(field, '').lower())
                                        for term in search_terms)]
         # Concatenate 'content' field values
-        content_values = "\n".join(row['content']
+        content_values = "\n".join(row.content
                                    for row in filtered_vectorstore)
 
         return filtered_vectorstore, content_values
