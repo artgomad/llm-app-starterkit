@@ -125,6 +125,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     filtered_vectorstore, content_values = faiss.searchByField(
                         field, search_terms)
 
+                    # If the search fails we make sure to pass the context to the next LLM call
+                    if not content_values:
+                        content_values = context
+
                 # With this function I want to return all the metadata of a single product
                 elif function_call_output['name'] == 'read_product_details':
                     print(function_call_output['name'])
