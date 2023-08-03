@@ -99,13 +99,17 @@ class Faiss():
         filtered_vectorstore = [row for row in all_db
                                 if any(re.search(r'\b{}\b'.format(term.lower()), row.metadata.get(field, '').lower())
                                        for term in search_terms)]
-
+        """
         for row in filtered_vectorstore:
             print(row.page_content)
-            print(row.metadata.get(field, ''))
+            print("{field}:", row.metadata.get(field, ''))
+            print('\n')
+        """
 
         # Concatenate 'content' field values
         content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                      for row in filtered_vectorstore)
+
+        print(content_values)
 
         return filtered_vectorstore, content_values

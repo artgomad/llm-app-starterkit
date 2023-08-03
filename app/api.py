@@ -123,7 +123,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         chatlog=chatlog,
                         chat_history=chatlog_strings,
                         context=content_values,
-                        user_question=user_question,)  # This time I removed functions=functions,)
+                        user_question=user_question,
+                        functions=None,)
 
                     print('llm response after function call = ')
                     print(llm_response)
