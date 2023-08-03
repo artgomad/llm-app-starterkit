@@ -48,6 +48,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     while True:
         data = await websocket.receive_text()
+        await websocket.send_json({"message": "Let me think..."})
 
         # Process the received data from the client
         payload = json.loads(data)
@@ -105,6 +106,7 @@ async def websocket_endpoint(websocket: WebSocket):
             function_call_output = llm_response['choices'][0]['message'].get(
                 'function_call')
             if function_call_output is not None:
+                await websocket.send_json({"message": "Searching our product database..."})
                 print('Calling a function!')
                 print(function_call_output)
                 # Transform the arguments property from a string to JSON
@@ -116,6 +118,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 filtered_vectorstore, content_values = faiss.searchByField(
                     field, search_terms)
 
+                await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})
                 # Make a new basicOpenAICompletion with the new database as context
                 try:
                     llm_response, inputPrompt = basicOpenAICompletion(

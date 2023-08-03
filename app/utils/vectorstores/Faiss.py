@@ -77,7 +77,7 @@ class Faiss():
                     'metadata': doc.metadata,
                     'content': docs_content
                 }
-                print(doc_dict)
+                # print(doc_dict)
                 docs_result.append(doc_dict)
 
             return docs_result, docs_content
@@ -91,6 +91,8 @@ class Faiss():
         if vectorstore is None:
             print("vectorstore not found")
             return []
+
+        print("Searching {search_terms} in {field}")
 
         search_terms_str = ', '.join(search_terms)
         all_db = vectorstore.similarity_search(search_terms_str, k=500)
