@@ -110,11 +110,12 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if function_call_output is not None:
                 await websocket.send_json({"message": "Searching our product database..."})
+                content_values = context
                 print('Calling a function!')
-                print(function_call_output)
 
                 # With this function I want to return the basic content of all products that match the search terms
-                if function_call_output == 'search_food_products':
+                if function_call_output['name'] == 'search_food_products':
+                    print(function_call_output['name'])
                     # Transform the arguments property from a string to JSON
                     arguments = json.loads(function_call_output['arguments'])
                     field = arguments.get('field', "")
@@ -125,7 +126,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         field, search_terms)
 
                 # With this function I want to return all the metadata of a single product
-                elif function_call_output == 'read_product_details':
+                elif function_call_output['name'] == 'read_product_details':
+                    print(function_call_output['name'])
                     arguments = json.loads(function_call_output['arguments'])
                     product_name = arguments.get('product_name', "")
 
@@ -135,6 +137,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     content_values = "\n\n".join(
                         doc['content'] for doc in all_product_info)
+                else:
+                    print('function without effect')
 
                 await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})
                 # Make a new basicOpenAICompletion with the new database as context
