@@ -2,13 +2,13 @@ from langchain.vectorstores.faiss import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 import pickle
 import os
+import re
 import io
 import csv
 from typing import List
 from dotenv import load_dotenv
 import openai
 from definitions import VECTORSTORE_FOLDER
-
 
 
 class Faiss():
@@ -25,21 +25,21 @@ class Faiss():
             with open(self.vectorstore, "rb") as f:
                 return pickle.load(f)
         else:
-            return None  
-            
+            return None
+
     def embed_doc(self, csv_data):
         contents: List[str] = []
-        metadata: List[dict] = [] 
+        metadata: List[dict] = []
 
         reader = csv.DictReader(io.StringIO(csv_data))
         for row in reader:
-            #print(row['content'])
+            # print(row['content'])
             content = row['content']
             if content is None:  # replace None with empty string
                 content = ''
-            
+
             print(row)
-            
+
             contents.append(content)
             metadata.append(row)
 
@@ -47,14 +47,14 @@ class Faiss():
         embedding = OpenAIEmbeddings()
 
         vectorstore = FAISS.from_texts(
-        texts=contents, embedding=embedding, metadatas=metadata)
+            texts=contents, embedding=embedding, metadatas=metadata)
 
         # Save vectorstore to a pickle file
         with open(self.vectorstore, "wb") as f:
             print("SAVING VECTORSTORE TO PICKLE FILE")
             pickle.dump(vectorstore, f)
 
-    def vector_search(self, query: str, number_of_outputs:int) -> str:
+    def vector_search(self, query: str, number_of_outputs: int) -> str:
         print('User question: ' + query)
         # Check if the pickle file exists in vecotrstore folder and load it
         if os.path.exists(self.vectorstore):
@@ -63,13 +63,14 @@ class Faiss():
                 print("loading vectorstore...")
 
             # Get the top X documents from the vectorstore
-            docs_and_scores = vectorstore.similarity_search_with_score(query, number_of_outputs)
-            #docs = vectorstore.similarity_search(query, number_of_outputs)
+            docs_and_scores = vectorstore.similarity_search_with_score(
+                query, number_of_outputs)
+            # docs = vectorstore.similarity_search(query, number_of_outputs)
 
             docs_content = ""
             docs_result = []
             for doc, score in docs_and_scores:
-            
+
                 docs_content += doc.metadata['content'] + '\n\n'
                 doc.metadata['score'] = float(score)
 
@@ -85,7 +86,15 @@ class Faiss():
             print("vectorstore not found")
             return [], ""
 
-        
+    def searchByField(self, field: str, *search_terms):
+        # Load the vectorstore
+        vectorstore = self.load_vectorstore()
+        if vectorstore is None:
+            print("vectorstore not found")
+            return []
 
-        
-
+        # Filter vectorstore
+        filtered_vectorstore = [row for row in vectorstore
+                                if any(re.search(r'\b{}\b'.format(term.lower()), row['metadata'].get(field, '').lower())
+                                       for term in search_terms)]
+        return filtered_vectorstore
