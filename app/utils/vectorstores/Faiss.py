@@ -71,6 +71,9 @@ class Faiss():
             docs_result = []
             for doc, score in docs_and_scores:
                 docs_content += doc.metadata['content'] + '\n\n'
+                # Remove content from metadata dict
+                doc.metadata.pop('content', None)
+
                 doc.metadata['score'] = float(score)
 
                 doc_dict = {
@@ -103,8 +106,9 @@ class Faiss():
             filtered_vectorstore = [row for row in all_db
                                     if any(re.search(r'{}'.format(term.lower()), row.metadata.get(field, '').lower())
                                            for term in search_terms)]
-            print("filtered_vectorstore")
-            print(filtered_vectorstore)
+            # print("filtered_vectorstore")
+            # print(filtered_vectorstore)
+
             # Concatenate 'content' field values
             content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                          for row in filtered_vectorstore)

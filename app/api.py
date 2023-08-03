@@ -136,7 +136,12 @@ async def websocket_endpoint(websocket: WebSocket):
                         query=product_name, number_of_outputs=1)
 
                     content_values = "\n\n".join(
-                        doc['content'] for doc in all_product_info)
+                        f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
+                        for doc in all_product_info
+                    )
+
+                    print('All Product info = ')
+                    print(content_values)
                 else:
                     print('function without effect')
 
