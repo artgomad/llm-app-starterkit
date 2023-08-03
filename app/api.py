@@ -36,9 +36,11 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
 class CSVData(BaseModel):
     item: str
     csv: str
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -52,14 +54,14 @@ async def websocket_endpoint(websocket: WebSocket):
 
         chatlog = payload['chatlog']
         knowledge_base = payload.get('knowledge_base')
-        temperature = payload.get('temperature',0)
-        model_name = payload.get('model','gpt-3.5-turbo')
-        context_items = payload.get('context_items', 3) 
+        temperature = payload.get('temperature', 0)
+        model_name = payload.get('model', 'gpt-3.5-turbo')
+        context_items = payload.get('context_items', 3)
         functions = payload.get('functions', None)
 
         chatlog_strings = ""
         context = ""
-   
+
         # Format chatlog to be fed as agent memory
         for item in chatlog:
             chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
@@ -67,12 +69,13 @@ async def websocket_endpoint(websocket: WebSocket):
         user_question = chatlog[-1]['content']
         returned_context = "You haven't defined any knowledge base."
 
-         # Retrieve context from vectorstore
+        # Retrieve context from vectorstore
         if knowledge_base is not None:
-            # Use the last 5 chatlog items as search query
-            query = chatlog[-1]['content'] #chatlog_strings #
+            # Use the last chatlog message as search query
+            query = chatlog[-1]['content']  # chatlog_strings #
             faiss = Faiss(file_name=knowledge_base)
-            docs, docs_content = faiss.vector_search(query= query, number_of_outputs=context_items)
+            docs, docs_content = faiss.vector_search(
+                query=query, number_of_outputs=context_items)
 
             context = docs_content
             print('context = ')
@@ -84,19 +87,48 @@ async def websocket_endpoint(websocket: WebSocket):
             else:
                 print('We found a context!')
                 returned_context = context
-                
+
         try:
             llm_response, inputPrompt = basicOpenAICompletion(
-                temperature=temperature, 
-                model_name=model_name, 
-                chatlog= chatlog, 
-                chat_history= chatlog_strings, 
-                context= context,
-                user_question= user_question,
-                functions= functions,)
+                temperature=temperature,
+                model_name=model_name,
+                chatlog=chatlog,
+                chat_history=chatlog_strings,
+                context=context,
+                user_question=user_question,
+                functions=functions,)
 
             print('llm response = ')
             print(llm_response)
+
+            if llm_response['choices'][0]['message'].get('function_call') is not None:
+                field = llm_response['choices'][0]['message']['function_call']['arguments']['field']
+                search_terms = llm_response['choices'][0]['message']['function_call']['arguments']['search_terms']
+
+                faiss = Faiss(file_name=knowledge_base)
+                filtered_vectorstore, content_values = faiss.searchByField(
+                    field=field, search_terms=search_terms)
+
+                # Make a new basicOpenAICompletion with the new database as context
+                try:
+                    llm_response, inputPrompt = basicOpenAICompletion(
+                        temperature=temperature,
+                        model_name=model_name,
+                        chatlog=chatlog,
+                        chat_history=chatlog_strings,
+                        context=content_values,
+                        user_question=user_question,)  # This time I removed functions=functions,)
+
+                    print('llm response after function call = ')
+                    print(llm_response)
+
+                    # update the context to be returned to the client
+                    returned_context = content_values if content_values else "No context found from the function call."
+
+                except Exception as e:
+                    traceback.print_exc()
+                    print(
+                        "Error occurred when executing basicOpenAICompletion after the function call.")
 
             await websocket.send_json({
                 "data":  llm_response,
@@ -117,8 +149,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 "context":  returned_context,
             })
 
-       
-
 
 @app.post("/create_vectorstore")
 async def create_vectorstore(data: CSVData):
@@ -134,6 +164,7 @@ async def create_vectorstore(data: CSVData):
     faiss.embed_doc(csv_data=csv_data)
 
     return {"data": "VECTORSTORE CREATED"}
+
 
 @app.websocket("/search-database")
 async def websocket_endpoint_search_database(websocket: WebSocket):
@@ -153,7 +184,8 @@ async def websocket_endpoint_search_database(websocket: WebSocket):
     faiss = Faiss(file_name=knowledge_base)
 
     # Directly create a new vectorstore, replacing the old one if it exists
-    docs, docs_content = faiss.vector_search(query=query, number_of_outputs=number_of_outputs)
+    docs, docs_content = faiss.vector_search(
+        query=query, number_of_outputs=number_of_outputs)
     context = json.dumps(docs, sort_keys=True, indent=4)
 
     # Send a response back to the client
@@ -180,8 +212,8 @@ async def websocket_endpoint_audio(websocket: WebSocket):
 
             # Save first transcript localy
             with open(os.path.join(temporary_dir, "transcript.txt"), "w") as f:
-                    f.write(transcript.text)
-                    print(f"{transcript.text} saved")
+                f.write(transcript.text)
+                print(f"{transcript.text} saved")
 
             await websocket.send_json({"data": transcript.text})
 
@@ -189,16 +221,17 @@ async def websocket_endpoint_audio(websocket: WebSocket):
             print("Received invalid payload")
 
 
-
 # Register a signal handler for SIGINT (Ctrl-C)
 def handle_exit_signal(signum, frame):
     global exit_flag
     exit_flag = True
 
+
 @app.on_event("startup")
 def startup_event():
     # Start a task to check the exit flag periodically
     asyncio.create_task(check_exit_flag())
+
 
 async def check_exit_flag():
     while not exit_flag:

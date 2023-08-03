@@ -10,6 +10,7 @@
 
    ```sh
    $ cd backend
+   $ python --version
    $ python3.X -m venv env (only the first time, use the python version you have installed)
    $ source env/bin/activate
    (env)$ pip install -r requirements.txt (only when requirements change)
@@ -28,4 +29,3 @@
    $ heroku login
    $ heroku logs --tail --app llm-app-starterkit
    ```
-
