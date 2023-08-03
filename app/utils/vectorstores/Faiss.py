@@ -92,7 +92,7 @@ class Faiss():
             print("vectorstore not found")
             return []
 
-        print("Searching {search_terms} in {field}")
+        print(f"Searching {search_terms} in {field}")
 
         search_terms_str = ', '.join(search_terms)
         all_db = vectorstore.similarity_search(search_terms_str, k=500)
