@@ -25,7 +25,8 @@ origins = [
     "https://project-zszmhke1xyd6rlfxgg1i.framercanvas.com",  # Framer Canvas
     "https://comprehensive-value-405432.framer.app",  # A framer publised website
     "https://script.google.com",
-    "https://script.googleusercontent.com"
+    "https://script.googleusercontent.com",
+    "https://aquamarine-copywriter-978461.framer.app/",
 ]
 
 app.add_middleware(
