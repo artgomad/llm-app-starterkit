@@ -180,6 +180,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "context":  returned_context,
                 "context_metadata": all_product_info,
                 "inputPrompt": inputPrompt,
+                "function_used": function_call_output,
             })
 
         except Exception as e:
