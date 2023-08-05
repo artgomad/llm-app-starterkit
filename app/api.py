@@ -123,7 +123,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     search_terms = arguments.get('search_terms', [])
 
                     faiss = Faiss(file_name=knowledge_base)
-                    filtered_vectorstore, content_values = faiss.searchByField(
+                    all_product_info, content_values = faiss.searchByField(
                         field, search_terms)
 
                     # If the search fails we make sure to pass the context to the next LLM call
@@ -177,6 +177,7 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json({
                 "data":  llm_response,
                 "context":  returned_context,
+                "context_metadata": all_product_info,
                 "inputPrompt": inputPrompt,
             })
 
