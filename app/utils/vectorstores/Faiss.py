@@ -67,7 +67,7 @@ class Faiss():
                 query, number_of_outputs)
             # docs = vectorstore.similarity_search(query, number_of_outputs)
 
-            docs_content = ""
+            context_for_LLM = ""
             docs_result = []
             for doc, score in docs_and_scores:
                 doc_content = doc.metadata['content']
@@ -82,9 +82,13 @@ class Faiss():
                 }
                 # print(doc_dict)
                 docs_result.append(doc_dict)
-                docs_content = '\n\n'.join(doc_content)
 
-            return docs_result, docs_content
+            context_for_LLM = [doc['content']
+                               for doc in docs_result]
+            print("context_for_LLM")
+            print('\n\n'.join(item for item in context_for_LLM))
+
+            return docs_result, context_for_LLM
         else:
             print("vectorstore not found")
             return [], ""
@@ -117,22 +121,13 @@ class Faiss():
                         'content': doc_content
                     }
                     filtered_docs_result.append(doc_dict)
-                    docs_content = '\n\n'.join(doc_content)
 
-            """
-            filtered_vectorstore = [row for row in all_db
-                                    if any(re.search(r'{}'.format(term.lower()), row.metadata.get(field, '').lower())
-                                           for term in search_terms)]
+            context_for_LLM = [doc['content']
+                               for doc in filtered_docs_result]
+            print("context_for_LLM")
+            print('\n\n'.join(item for item in context_for_LLM))
 
-            # Concatenate 'content' field values
-            content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
-                                         for row in filtered_vectorstore)
-            """
-
-            print("content_values")
-            print(docs_content)
-
-            return filtered_docs_result, docs_content
+            return filtered_docs_result, context_for_LLM
 
         # If one of the argumets is empty then return semantically related items
         else:
@@ -149,18 +144,13 @@ class Faiss():
 
                     doc_dict = {
                         'metadata': row.metadata,
-                        'content': doc_content
+                        'content': f"{doc_content}\n{field}: {row.metadata.get(field)}"
                     }
-
                     filtered_docs_result.append(doc_dict)
-                    # We add to docs_content the information of the relevant metadata field
-                    docs_content = "\n\n".join(
-                        f"{doc_content}\n{field}: {row.metadata.get(field)}")
 
-            """
-            content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
-                                         for row in filtered_vectorstore)
-            """
-            print(docs_content)
+            context_for_LLM = [doc['content']
+                               for doc in filtered_docs_result]
+            print("context_for_LLM")
+            print('\n\n'.join(item for item in context_for_LLM))
 
-            return filtered_docs_result, docs_content
+            return filtered_docs_result, context_for_LLM

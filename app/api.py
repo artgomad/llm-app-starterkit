@@ -112,7 +112,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if function_call_output is not None:
                 await websocket.send_json({"message": "Searching our product database..."})
-                content_values = context
+                context_for_LLM = context
                 print('Calling a function!')
 
                 # With this function I want to return the basic content of all products that match the search terms
@@ -124,12 +124,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     search_terms = arguments.get('search_terms', [])
 
                     faiss = Faiss(file_name=knowledge_base)
-                    all_product_info, content_values = faiss.searchByField(
+                    all_product_info, context_for_LLM = faiss.searchByField(
                         field, search_terms)
 
                     # If the search fails we make sure to pass the context to the next LLM call
-                    if not content_values:
-                        content_values = context
+                    if not context_for_LLM:
+                        context_for_LLM = context
 
                 # With this function I want to return all the metadata of a single product
                 elif function_call_output['name'] == 'read_product_details':
@@ -138,16 +138,16 @@ async def websocket_endpoint(websocket: WebSocket):
                     product_name = arguments.get('product_name', "")
 
                     faiss = Faiss(file_name=knowledge_base)
-                    all_product_info, embedded_content = faiss.vector_search(
+                    all_product_info, context_for_LLM = faiss.vector_search(
                         query=product_name, number_of_outputs=1)
 
-                    content_values = "\n\n".join(
+                    context_for_LLM = "\n\n".join(
                         f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
                         for doc in all_product_info
                     )
 
                     print('All Product info = ')
-                    print(content_values)
+                    print(context_for_LLM)
                 else:
                     print('function without effect')
 
@@ -159,7 +159,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         model_name=model_name,
                         chatlog=chatlog,
                         chat_history=chatlog_strings,
-                        context=content_values,
+                        context=context_for_LLM,
                         user_question=user_question,
                         functions=functions,
                         function_call='none',)
@@ -168,7 +168,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     print(llm_response)
 
                     # update the context to be returned to the client
-                    returned_context = content_values if content_values else "No context found from the function call."
+                    returned_context = context_for_LLM if context_for_LLM else "No context found from the function call."
 
                 except Exception as e:
                     traceback.print_exc()
