@@ -63,6 +63,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         chatlog_strings = ""
         context = ""
+        all_product_info = []
 
         # Format chatlog to be fed as agent memory
         for item in chatlog:
