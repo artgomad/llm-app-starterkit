@@ -122,10 +122,11 @@ class Faiss():
                     }
                     filtered_docs_result.append(doc_dict)
 
-            context_for_LLM = [doc['content']
-                               for doc in filtered_docs_result]
+            context_for_LLM = '\n\n'.join(
+                doc['content'] for doc in filtered_docs_result)
+
             print("context_for_LLM")
-            print('\n\n'.join(item for item in context_for_LLM))
+            print(context_for_LLM)
 
             return filtered_docs_result, context_for_LLM
 
