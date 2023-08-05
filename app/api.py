@@ -97,7 +97,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 model_name=model_name,
                 chatlog=chatlog,
                 chat_history=chatlog_strings,
-                context=context,
+                context="",  # context # Removed the context from basic answer
                 user_question=user_question,
                 functions=functions,
                 function_call='auto',)
