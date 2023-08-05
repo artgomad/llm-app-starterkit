@@ -70,7 +70,7 @@ class Faiss():
             docs_content = ""
             docs_result = []
             for doc, score in docs_and_scores:
-                docs_content += doc.metadata['content'] + '\n\n'
+                doc_content = doc.metadata['content']
                 # Remove content from metadata dict
                 doc.metadata.pop('content', None)
 
@@ -78,10 +78,11 @@ class Faiss():
 
                 doc_dict = {
                     'metadata': doc.metadata,
-                    'content': docs_content
+                    'content': doc_content
                 }
                 # print(doc_dict)
                 docs_result.append(doc_dict)
+                docs_content = '\n\n'.join(doc_content)
 
             return docs_result, docs_content
         else:
@@ -98,24 +99,40 @@ class Faiss():
         search_terms_str = ', '.join(search_terms)
         all_db = vectorstore.similarity_search(search_terms_str, k=500)
 
+        docs_content = ""
+        filtered_docs_result = []
+
         # if field and search_terms are not empty then filter vectorstore
         if field and search_terms_str:
-
             print(f"Searching {search_terms} in {field}")
 
+            for row in all_db:
+                # Filter rows where any term from the list [search_terms] is found in the specified field of row.metadata
+                if any(re.search(r'{}'.format(term.lower()), row.metadata.get(field, '').lower()) for term in search_terms):
+                    doc_content = row.metadata['content']
+                    row.metadata.pop('content', None)
+
+                    doc_dict = {
+                        'metadata': row.metadata,
+                        'content': doc_content
+                    }
+                    filtered_docs_result.append(doc_dict)
+                    docs_content = '\n\n'.join(doc_content)
+
+            """
             filtered_vectorstore = [row for row in all_db
                                     if any(re.search(r'{}'.format(term.lower()), row.metadata.get(field, '').lower())
                                            for term in search_terms)]
-            # print("filtered_vectorstore")
-            # print(filtered_vectorstore)
 
             # Concatenate 'content' field values
             content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                          for row in filtered_vectorstore)
-            print("content_values")
-            print(content_values)
+            """
 
-            return filtered_vectorstore, content_values
+            print("content_values")
+            print(docs_content)
+
+            return filtered_docs_result, docs_content
 
         # If one of the argumets is empty then return semantically related items
         else:
@@ -125,15 +142,25 @@ class Faiss():
             docs_and_scores = vectorstore.similarity_search_with_score(
                 search_terms_str, k=20)
 
-            filtered_vectorstore = []
-
-            for doc, score in docs_and_scores:
+            for row, score in docs_and_scores:
                 if score < 0.55:
-                    # Append the doc to filtered_vectorstore
-                    filtered_vectorstore.append(doc)
+                    doc_content = row.metadata['content']
+                    row.metadata.pop('content', None)
 
+                    doc_dict = {
+                        'metadata': row.metadata,
+                        'content': doc_content
+                    }
+
+                    filtered_docs_result.append(doc_dict)
+                    # We add to docs_content the information of the relevant metadata field
+                    docs_content = "\n\n".join(
+                        f"{doc_content}\n{field}: {row.metadata.get(field)}")
+
+            """
             content_values = "\n\n".join(f"{row.page_content}\n{field}: {row.metadata.get(field)}"
                                          for row in filtered_vectorstore)
-            print(content_values)
+            """
+            print(docs_content)
 
-            return filtered_vectorstore, content_values
+            return filtered_docs_result, docs_content
