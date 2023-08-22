@@ -60,6 +60,7 @@ async def websocket_endpoint(websocket: WebSocket):
         model_name = payload.get('model', 'gpt-3.5-turbo')
         context_items = payload.get('context_items', 3)
         functions = payload.get('functions', None)
+        function_call = payload.get('function_call', "auto")
 
         chatlog_strings = ""
         context = ""
@@ -100,7 +101,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 context="",  # context # Removed the context from basic answer
                 user_question=user_question,
                 functions=functions,
-                function_call='auto',)
+                function_call=function_call,)
 
             print('llm response = ')
             print(llm_response)
