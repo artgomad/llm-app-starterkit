@@ -101,7 +101,7 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 llm_response, inputPrompt = basicOpenAICompletion(
                     temperature=temperature,
-                    model_name=model_name,
+                    model_name="gpt-04-0613",
                     chatlog=chatlog,
                     chat_history=chatlog_strings,
                     context="",  # No need for external context to update customer profile
