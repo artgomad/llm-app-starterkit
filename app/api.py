@@ -159,7 +159,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     faiss = Faiss(file_name=knowledge_base)
                     all_product_info, context_for_LLM = faiss.vector_search(
-                        query=searchQuery, number_of_outputs=3)
+                        query=searchQuery, number_of_outputs=5)
 
                     print(all_product_info)
 
