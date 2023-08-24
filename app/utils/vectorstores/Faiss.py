@@ -18,6 +18,7 @@ class Faiss():
 
         self.file_name = file_name
         self.vectorstore = VECTORSTORE_FOLDER + file_name + '.pkl'
+        print("load vectorstore: " + file_name)
 
     def load_vectorstore(self):
         # Check if the pickle file exists in vecotrstore folder and load it
