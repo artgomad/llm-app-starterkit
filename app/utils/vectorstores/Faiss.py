@@ -57,41 +57,43 @@ class Faiss():
 
     def vector_search(self, query: str, number_of_outputs: int) -> str:
         print('User question: ' + query)
+        # Check if the pickle file exists in vecotrstore folder and load it
+        if os.path.exists(self.vectorstore):
+            with open(self.vectorstore, "rb") as f:
+                vectorstore = pickle.load(f)
+                print("loading vectorstore...")
 
-        # Load the vectorstore
-        vectorstore = self.load_vectorstore()
-        if vectorstore is None:
+            # Get the top X documents from the vectorstore
+            docs_and_scores = vectorstore.similarity_search_with_score(
+                query, number_of_outputs)
+            # docs = vectorstore.similarity_search(query, number_of_outputs)
+
+            context_for_LLM = ""
+            docs_result = []
+            for doc, score in docs_and_scores:
+                doc_content = doc.metadata['content']
+                # Remove content from metadata dict
+                doc.metadata.pop('content', None)
+
+                doc.metadata['score'] = float(score)
+
+                doc_dict = {
+                    'metadata': doc.metadata,
+                    'content': doc_content
+                }
+                # print(doc_dict)
+                docs_result.append(doc_dict)
+
+            context_for_LLM = '\n\n'.join(
+                doc['content'] for doc in docs_result)
+
+            print("context_for_LLM")
+            print('\n\n'.join(item for item in context_for_LLM))
+
+            return docs_result, context_for_LLM
+        else:
             print("vectorstore not found")
-            return []
-
-        # Get the top X documents from the vectorstore
-        docs_and_scores = vectorstore.similarity_search_with_score(
-            query, number_of_outputs)
-        # docs = vectorstore.similarity_search(query, number_of_outputs)
-
-        context_for_LLM = ""
-        docs_result = []
-        for doc, score in docs_and_scores:
-            doc_content = doc.metadata['content']
-            # Remove content from metadata dict
-            doc.metadata.pop('content', None)
-
-            doc.metadata['score'] = float(score)
-
-            doc_dict = {
-                'metadata': doc.metadata,
-                'content': doc_content
-            }
-            # print(doc_dict)
-            docs_result.append(doc_dict)
-
-        context_for_LLM = '\n\n'.join(
-            doc['content'] for doc in docs_result)
-
-        print("context_for_LLM")
-        print('\n\n'.join(item for item in context_for_LLM))
-
-        return docs_result, context_for_LLM
+            return [], ""
 
     def searchByField(self, field: str, search_terms: List[str]):
         # Load the vectorstore
