@@ -60,6 +60,7 @@ async def websocket_endpoint(websocket: WebSocket):
         model_name = payload.get('model', 'gpt-3.5-turbo')
         context_items = payload.get('context_items', 3)
         functions = payload.get('functions', None)
+        update_profile_function = payload.get('update_profile_function', None)
         function_call = payload.get('function_call', "auto")
         score_threshold = payload.get('score_threshold', 0.5)
 
@@ -93,6 +94,44 @@ async def websocket_endpoint(websocket: WebSocket):
                 print('We found a context!')
                 returned_context = context
 
+        # 01 UPDATE CUSTOMER PROFILE
+        if update_profile_function is not None:
+            try:
+                llm_response, inputPrompt = basicOpenAICompletion(
+                    temperature=temperature,
+                    model_name=model_name,
+                    chatlog=chatlog,
+                    chat_history=chatlog_strings,
+                    context="",  # No need for external context to update customer profile
+                    user_question=user_question,
+                    functions=update_profile_function,
+                    function_call={"name": "update_profile"})
+
+                function_call_output = llm_response['choices'][0]['message'].get(
+                    'function_call')
+
+                customer_profile_update = json.loads(
+                    function_call_output['arguments'])
+
+                await websocket.send_json({
+                    "function_used": function_call_output,
+                    "customer_profile_update": customer_profile_update,
+                })
+
+            except Exception as e:
+                traceback.print_exc()
+                error_message = str(e)
+                tb_str = traceback.format_exc()
+                tb_lines = tb_str.split('\n')
+                last_5_lines_tb = '\n'.join(tb_lines[-6:])
+                print("ERROR: ", last_5_lines_tb)
+                await websocket.send_json({
+                    "error": error_message,
+                    "error_traceback": last_5_lines_tb,
+                    "context":  returned_context,
+                })
+
+        # 02 CORE GPT FUNCTION ROUTER
         try:
             llm_response, inputPrompt = basicOpenAICompletion(
                 temperature=temperature,
@@ -139,11 +178,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 elif function_call_output['name'] == 'read_product_details':
                     print(function_call_output['name'])
                     arguments = json.loads(function_call_output['arguments'])
-                    product_name = arguments.get('product_name', "")
+                    searchQuery = arguments.get('product_name', "")
 
                     faiss = Faiss(file_name=knowledge_base)
                     all_product_info, context_for_LLM = faiss.vector_search(
-                        query=product_name, number_of_outputs=1)
+                        query=searchQuery, number_of_outputs=1)
 
                     context_for_LLM = "\n\n".join(
                         f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
@@ -152,11 +191,10 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     print('All Product info = ')
                     print(context_for_LLM)
-                elif function_call_output['name'] == 'update_profile':
+                elif function_call_output['name'] == 'search_products_based_on_profile':
                     # After updating the profile we want to add to the context the matching plan from the database
                     print(function_call_output['name'])
-                    arguments = json.loads(function_call_output['arguments'])
-                    searchQuery = json.dumps(arguments)
+                    searchQuery = json.dumps(customer_profile_update)
 
                     faiss = Faiss(file_name=knowledge_base)
                     all_product_info, context_for_LLM = faiss.vector_search(
@@ -183,7 +221,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     print('function without effect')
 
                 await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})
-                # Make a new basicOpenAICompletion with the new database as context
+
+                # 03 GPT ANSWER INFORMED BY THE FUNCTION CALL OUTPUT
                 try:
                     llm_response, inputPrompt = basicOpenAICompletion(
                         temperature=temperature,
