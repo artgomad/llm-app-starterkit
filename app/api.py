@@ -113,9 +113,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if function_call_output is not None:
                 await websocket.send_json({"message": "Searching our product database..."})
-                # context_for_LLM = context
-                print(function_call_output.arguments)
-                context_for_LLM = function_call_output.arguments
+                context_for_LLM = context
+                # print(function_call_output.arguments)
+                # context_for_LLM = function_call_output.arguments
                 print('Calling a function!')
 
                 # With this function I want to return the basic content of all products that match the search terms
@@ -143,6 +143,24 @@ async def websocket_endpoint(websocket: WebSocket):
                     faiss = Faiss(file_name=knowledge_base)
                     all_product_info, context_for_LLM = faiss.vector_search(
                         query=product_name, number_of_outputs=1)
+
+                    context_for_LLM = "\n\n".join(
+                        f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
+                        for doc in all_product_info
+                    )
+
+                    print('All Product info = ')
+                    print(context_for_LLM)
+                elif function_call_output['name'] == 'update_profile':
+                    # After updating the profile we want to add to the context the matching plan from the database
+                    print('function without effect')
+                    print(function_call_output['name'])
+                    arguments = json.loads(function_call_output['arguments'])
+                    preferred_plan = arguments.get('preferred_plan', "")
+
+                    faiss = Faiss(file_name=knowledge_base)
+                    all_product_info, context_for_LLM = faiss.vector_search(
+                        query=preferred_plan, number_of_outputs=1)
 
                     context_for_LLM = "\n\n".join(
                         f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
