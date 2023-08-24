@@ -114,7 +114,10 @@ async def websocket_endpoint(websocket: WebSocket):
             if function_call_output is not None:
                 await websocket.send_json({"message": "Searching our product database..."})
                 # context_for_LLM = context
-                context_for_LLM = json.dumps(function_call_output, indent=4)
+                print(json.dumps(
+                    function_call_output.arguments, indent=4))
+                context_for_LLM = json.dumps(
+                    function_call_output.arguments, indent=4)
                 print('Calling a function!')
 
                 # With this function I want to return the basic content of all products that match the search terms
