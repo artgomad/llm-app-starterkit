@@ -3,8 +3,6 @@ from app.utils.vectorstores.Faiss import Faiss
 
 def compare_products(function_output, knowledge_base, context):
 
-    searchQuery = function_output.get('product_name', "")
-
     field = function_output.get('field', "")
     search_terms = function_output.get('search_terms', [])
 

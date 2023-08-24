@@ -86,8 +86,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 query=query, number_of_outputs=context_items)
 
             context = docs_content
-            print('context = ')
-            print(context)
+            # print('context = ')
+            # print(context)
 
             if context == "":
                 print('No context found')
@@ -115,6 +115,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 customer_profile_update = json.loads(
                     function_call_output['arguments'])
 
+                print('customer_profile_update = ')
+                print(customer_profile_update)
+
                 # Send the profile update to the client
                 await websocket.send_json({
                     "customer_profile_update": customer_profile_update,
@@ -140,7 +143,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 model_name=model_name,
                 chatlog=chatlog,
                 chat_history=chatlog_strings,
-                context="",  # context # Removed the context from basic answer
+                context="",  # Routing decision is not based on database context
                 user_question=user_question,
                 functions=functions,
                 function_call=function_call,)
