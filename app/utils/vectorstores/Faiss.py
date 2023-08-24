@@ -18,7 +18,6 @@ class Faiss():
 
         self.file_name = file_name
         self.vectorstore = VECTORSTORE_FOLDER + file_name + '.pkl'
-        print("load vectorstore: " + file_name)
 
     def load_vectorstore(self):
         # Check if the pickle file exists in vecotrstore folder and load it
@@ -87,8 +86,8 @@ class Faiss():
             context_for_LLM = '\n\n'.join(
                 doc['content'] for doc in docs_result)
 
-            print("context_for_LLM")
-            print('\n\n'.join(item for item in context_for_LLM))
+            # print("context_for_LLM")
+            # print('\n\n'.join(item for item in context_for_LLM))
 
             return docs_result, context_for_LLM
         else:
