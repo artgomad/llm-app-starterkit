@@ -60,6 +60,7 @@ async def websocket_endpoint(websocket: WebSocket):
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
         model_name = payload.get('model', 'gpt-3.5-turbo')
+        model_for_profiling = payload.get('model_profiling', 'gpt-3.5-turbo')
         context_items = payload.get('context_items', 3)
         functions = payload.get('functions', None)
         update_profile_function = payload.get('update_profile_function', None)
@@ -101,7 +102,7 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 llm_response, inputPrompt = basicOpenAICompletion(
                     temperature=temperature,
-                    model_name=model_name,
+                    model_name=model_for_profiling,
                     chatlog=chatlog,
                     chat_history=chatlog_strings,
                     context="",  # No need for external context to update customer profile
