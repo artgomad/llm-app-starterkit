@@ -153,10 +153,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     print(context_for_LLM)
                 elif function_call_output['name'] == 'update_profile':
                     # After updating the profile we want to add to the context the matching plan from the database
-                    print('function without effect')
                     print(function_call_output['name'])
                     arguments = json.loads(function_call_output['arguments'])
                     preferred_plan = arguments.get('preferred_plan', "")
+
+                    print('preferred_plan = ')
+                    print(preferred_plan)
 
                     faiss = Faiss(file_name=knowledge_base)
                     all_product_info, context_for_LLM = faiss.vector_search(
