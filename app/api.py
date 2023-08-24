@@ -165,7 +165,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     # Remove all the products with a score higher than 0.5
                     all_product_info = [
-                        doc for doc in all_product_info if doc['score'] < 0.5]
+                        doc for doc in all_product_info if doc.metadata['score'] < 0.5]
 
                     context_for_LLM = "\n\n".join(
                         f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
