@@ -13,6 +13,8 @@ import signal
 from app.chains.BasicChatChain import basicOpenAICompletion
 from app.utils.vectorstores.Faiss import Faiss
 from app.utils.functions.search_products_based_on_profile import search_products_based_on_profile
+from app.utils.functions.read_product_details import read_product_details
+from app.utils.functions.compare_products import compare_products
 
 
 load_dotenv()
@@ -52,9 +54,8 @@ async def websocket_endpoint(websocket: WebSocket):
         data = await websocket.receive_text()
         await websocket.send_json({"message": "Let me think..."})
 
-        # Process the received data from the client
+        # 00 EXTRACT ALL API PARAMETERS
         payload = json.loads(data)
-
         chatlog = payload['chatlog']
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
@@ -114,8 +115,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 customer_profile_update = json.loads(
                     function_call_output['arguments'])
 
+                # Send the profile update to the client
                 await websocket.send_json({
-                    "function_used": function_call_output,
                     "customer_profile_update": customer_profile_update,
                 })
 
@@ -149,48 +150,28 @@ async def websocket_endpoint(websocket: WebSocket):
 
             function_call_output = llm_response['choices'][0]['message'].get(
                 'function_call')
-            print('function_call_output = ')
-            print(function_call_output)
 
+            # 03 EXECUTE THE FUNCTION CHOSEN BY GPT
             if function_call_output is not None:
-                await websocket.send_json({"message": "Searching our product database..."})
-                context_for_LLM = context
-                # print(function_call_output.arguments)
-                # context_for_LLM = function_call_output.arguments
+                await websocket.send_json({"message": "Searching our database..."})
                 print('Calling a function!')
                 print(function_call_output['name'])
+                print(function_call_output)
 
-                # With this function I want to return the basic content of all products that match the search terms
-                if function_call_output['name'] == 'search_food_products':
-                    # Transform the arguments property from a string to JSON
-                    arguments = json.loads(function_call_output['arguments'])
-                    field = arguments.get('field', "")
-                    search_terms = arguments.get('search_terms', [])
+                context_for_LLM = context
+                function_output = json.loads(function_call_output['arguments'])
 
-                    faiss = Faiss(file_name=knowledge_base)
-                    all_product_info, context_for_LLM = faiss.searchByField(
-                        field, search_terms)
+                # This function returns the basic content of all products that match the search terms
+                if function_call_output['name'] == 'compare_products':
+                    all_product_info, context_for_LLM = compare_products(
+                        function_output, knowledge_base, context)
 
-                    # If the search fails we make sure to pass the context to the next LLM call
-                    if not context_for_LLM:
-                        context_for_LLM = context
-
-                # With this function I want to return all the metadata of a single product
+                # This function returns all the metadata of a single product given the product name
                 elif function_call_output['name'] == 'read_product_details':
-                    arguments = json.loads(function_call_output['arguments'])
-                    searchQuery = arguments.get('product_name', "")
+                    all_product_info, context_for_LLM = read_product_details(
+                        function_output, knowledge_base)
 
-                    faiss = Faiss(file_name=knowledge_base)
-                    all_product_info, context_for_LLM = faiss.vector_search(
-                        query=searchQuery, number_of_outputs=1)
-
-                    context_for_LLM = "\n\n".join(
-                        f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
-                        for doc in all_product_info
-                    )
-
-                    print('All Product info = ')
-                    print(context_for_LLM)
+                # This function returns all products that match the customer profile under a certain threshold
                 elif function_call_output['name'] == 'search_products_based_on_profile':
                     all_product_info, context_for_LLM = search_products_based_on_profile(
                         customer_profile_update, knowledge_base, score_threshold)
@@ -198,9 +179,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 else:
                     print('function without effect')
 
+                # Send a message to the client to let them know the function executed correctly
                 await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})
 
-                # 03 GPT ANSWER INFORMED BY THE FUNCTION CALL OUTPUT
+                # 04 GPT ANSWER INFORMED BY THE FUNCTION CALL OUTPUT
                 try:
                     llm_response, inputPrompt = basicOpenAICompletion(
                         temperature=temperature,

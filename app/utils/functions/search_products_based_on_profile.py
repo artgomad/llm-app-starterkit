@@ -1,4 +1,3 @@
-# Add to the context the matching plan from the database
 import json
 from app.utils.vectorstores.Faiss import Faiss
 
@@ -15,19 +14,19 @@ def search_products_based_on_profile(customer_profile_update, knowledge_base, sc
     print("score_threshold")
     print(score_threshold)
 
+    context_for_LLM = "\n\n".join(
+        f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
+        for doc in all_product_info
+    )
+
+    print('context_for_LLM = ')
+    print(context_for_LLM)
+
     # Remove all the products with a score higher than 0.5
     all_product_info = [
         doc for doc in all_product_info if doc['metadata']['score'] < score_threshold]
 
     print("filtered products")
     print(all_product_info)
-
-    context_for_LLM = "\n\n".join(
-        f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
-        for doc in all_product_info
-    )
-
-    print('All Product info = ')
-    print(context_for_LLM)
 
     return all_product_info, context_for_LLM
