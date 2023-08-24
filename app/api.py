@@ -61,6 +61,7 @@ async def websocket_endpoint(websocket: WebSocket):
         context_items = payload.get('context_items', 3)
         functions = payload.get('functions', None)
         function_call = payload.get('function_call', "auto")
+        score_threshold = payload.get('score_threshold', 0.5)
 
         chatlog_strings = ""
         context = ""
@@ -165,7 +166,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     # Remove all the products with a score higher than 0.5
                     all_product_info = [
-                        doc for doc in all_product_info if doc['metadata']['score'] < 0.5]
+                        doc for doc in all_product_info if doc['metadata']['score'] < score_threshold]
 
                     context_for_LLM = "\n\n".join(
                         f"Full product information: {json.dumps(doc['metadata'], indent=2)}"
