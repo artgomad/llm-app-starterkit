@@ -163,13 +163,11 @@ async def websocket_endpoint(websocket: WebSocket):
                         query=searchQuery, number_of_outputs=5)
 
                     print("score_threshold")
-                    print(type(score_threshold))
                     print(score_threshold)
-                    print(float(score_threshold))
 
                     # Remove all the products with a score higher than 0.5
                     all_product_info = [
-                        doc for doc in all_product_info if doc['metadata']['score'] < float(score_threshold)]
+                        doc for doc in all_product_info if doc['metadata']['score'] < score_threshold]
 
                     print("filtered products")
                     print(all_product_info)
