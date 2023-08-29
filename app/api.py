@@ -183,8 +183,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 else:
                     print('function without effect')
                     # context_for_LLM equals a function_call_output stringified
-                    # context_for_LLM = json.dumps(
-                    # function_call_output['arguments'])
+                    context_for_LLM = json.dumps(
+                        function_call_output['arguments'])
 
                 # Send a message to the client to let them know the function executed correctly
                 await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})

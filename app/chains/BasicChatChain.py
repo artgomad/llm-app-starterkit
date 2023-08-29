@@ -7,19 +7,24 @@ load_dotenv()
 def format_messages(chatlog=[], chat_history="", context="", user_question=""):
     messages = []
     for item in chatlog:
+        content_with_replacements = item['content'].replace("{chat_history}", chat_history).replace(
+            "{context}", context).replace("{user_question}", user_question)
+
         if item['role'] == 'user':
-            user_message = f"{item['content']}"
-            messages.append({"role": "user", "content": user_message})
+            messages.append(
+                {"role": "user", "content": content_with_replacements})
 
         elif item['role'] == 'system':
-            system_message = f"{item['content']}"
-            messages.append({"role": "system", "content": system_message})
+            messages.append(
+                {"role": "system", "content": content_with_replacements})
 
         elif item['role'] == 'assistant':
-            messages.append({"role": "assistant", "content": item['content']})
+            messages.append(
+                {"role": "assistant", "content": content_with_replacements})
 
         elif item['role'] == 'function':
-            messages.append({"role": "function", "content": item['content']})
+            messages.append(
+                {"role": "function", "content": content_with_replacements})
 
     print('FORMATED PROMPT AS RECEIVED BY THE LLM\n')
     print(messages)
