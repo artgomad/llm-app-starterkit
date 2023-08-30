@@ -59,17 +59,17 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
         print("function_call_output")
         print(function_call_output)
 
-        chosen_prompt_name = function_call_output.get('name', 'default_prompt')
-
         new_system_prompt = None
 
-        if chosen_prompt_name == 'default_prompt':
-            new_system_prompt = prompts_array[0]
-        else:
+        if function_call_output:
+            chosen_prompt_name = function_call_output['name']
+
             for item in prompt_options:
                 if item['name'] == chosen_prompt_name:
                     new_system_prompt = item['prompt']
                     break
+        else:
+            new_system_prompt = prompts_array[0]
 
         print('chosen_prompt = ')
         print(new_system_prompt)
