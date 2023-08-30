@@ -55,8 +55,7 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
         print("function_call_output")
         print(function_call_output)
 
-        chosen_prompt_name = json.loads(
-            function_call_output['name'])
+        chosen_prompt_name = function_call_output['name']
 
         new_system_prompt = prompt_options[chosen_prompt_name]
 
