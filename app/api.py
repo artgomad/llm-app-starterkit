@@ -15,6 +15,8 @@ from app.utils.vectorstores.Faiss import Faiss
 from app.utils.functions.search_products_based_on_profile import search_products_based_on_profile
 from app.utils.functions.read_product_details import read_product_details
 from app.utils.functions.compare_products import compare_products
+from app.utils.functions.update_customer_profile import update_customer_profile
+from app.utils.functions.choose_best_prompt import choose_best_prompt
 
 
 load_dotenv()
@@ -57,6 +59,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # 00 EXTRACT ALL API PARAMETERS
         payload = json.loads(data)
         chatlog = payload['chatlog']
+        prompt_options = payload.get('dynamic_system_prompt')
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
         model_name = payload.get('model', 'gpt-3.5-turbo')
@@ -97,45 +100,32 @@ async def websocket_endpoint(websocket: WebSocket):
                 print('We found a context!')
                 returned_context = context
 
-        # 01 UPDATE CUSTOMER PROFILE
-        if update_profile_function is not None:
-            try:
-                llm_response, inputPrompt = basicOpenAICompletion(
-                    temperature=temperature,
-                    model_name=model_for_profiling,
-                    chatlog=chatlog,
-                    chat_history=chatlog_strings,
-                    context="",  # No need for external context to update customer profile
-                    user_question=user_question,
-                    functions=update_profile_function,
-                    function_call={"name": "update_profile"})
+        # 01 EXECUTE CUSTOMER PROFILE UPDATE AND CHOSING SYSTEM PROMPT IN PARALLEL
+        customer_profile_update, new_system_prompt = await asyncio.gather(
+            update_customer_profile(
+                websocket=websocket,
+                model_name=model_for_profiling,
+                chatlog=chatlog,
+                chat_history=chatlog_strings,
+                user_question=user_question,
+                functions=update_profile_function,
+            ),
+            choose_best_prompt(
+                websocket=websocket,
+                prompt_options=prompt_options,
+                chatlog=chatlog,
+                chat_history=chatlog_strings,
+                user_question=user_question,
 
-                function_call_output = llm_response['choices'][0]['message'].get(
-                    'function_call')
+            )
+        )
 
-                customer_profile_update = json.loads(
-                    function_call_output['arguments'])
-
-                print('customer_profile_update = ')
-                print(customer_profile_update)
-
-                # Send the profile update to the client
-                await websocket.send_json({
-                    "customer_profile_update": customer_profile_update,
-                })
-
-            except Exception as e:
-                traceback.print_exc()
-                error_message = str(e)
-                tb_str = traceback.format_exc()
-                tb_lines = tb_str.split('\n')
-                last_5_lines_tb = '\n'.join(tb_lines[-6:])
-                print("ERROR: ", last_5_lines_tb)
-                await websocket.send_json({
-                    "error": error_message,
-                    "error_traceback": last_5_lines_tb,
-                    "context":  "Error when updating the customer profile.",
-                })
+        if new_system_prompt is not None:
+            # Replace the system prompt of the chatlog with the one selected for the next operation
+            for i, item in enumerate(chatlog):
+                if item["prompt"]["role"] == "system":
+                    chatlog[i] = new_system_prompt
+                    break
 
         # 02 CORE GPT FUNCTION ROUTER
         try:
