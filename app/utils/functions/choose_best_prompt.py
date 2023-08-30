@@ -46,8 +46,14 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
             function_call="auto",
         )
 
+        print("llm_response")
+        print(llm_response)
+
         function_call_output = llm_response['choices'][0]['message'].get(
             'function_call')
+
+        print("function_call_output")
+        print(function_call_output)
 
         chosen_prompt_name = json.loads(
             function_call_output['name'])
