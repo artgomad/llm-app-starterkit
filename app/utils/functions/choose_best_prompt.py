@@ -22,6 +22,10 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
             },
         } for item in prompt_options]
 
+    prompts_array = [
+        item['prompt']
+        for item in prompt_options]
+
     # We are going to inject a new system prompt for this first opperation
     system_prompt = {
         "role": "system",
@@ -55,13 +59,17 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
         print("function_call_output")
         print(function_call_output)
 
-        chosen_prompt_name = function_call_output['name']
+        chosen_prompt_name = function_call_output.get('name', 'default_prompt')
 
         new_system_prompt = None
-        for item in prompt_options:
-            if item['name'] == chosen_prompt_name:
-                new_system_prompt = item['prompt']
-                break
+
+        if chosen_prompt_name == 'default_prompt':
+            new_system_prompt = prompts_array[0]
+        else:
+            for item in prompt_options:
+                if item['name'] == chosen_prompt_name:
+                    new_system_prompt = item['prompt']
+                    break
 
         print('chosen_prompt = ')
         print(new_system_prompt)
