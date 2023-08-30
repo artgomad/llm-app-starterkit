@@ -4,8 +4,8 @@ import traceback
 from app.chains.BasicChatChain import basicOpenAICompletion
 
 
-async def update_customer_profile(websocket, model_name, chatlog, chat_history, user_question, update_profile_function):
-    if update_profile_function is None:
+async def update_customer_profile(websocket, model_name, chatlog, chat_history, user_question, functions):
+    if functions is None:
         return None
 
     try:
@@ -16,7 +16,7 @@ async def update_customer_profile(websocket, model_name, chatlog, chat_history, 
             chat_history=chat_history,
             context="",  # No need for external context to update customer profile
             user_question=user_question,
-            functions=update_profile_function,
+            functions=functions,
             function_call={"name": "update_profile"})
 
         function_call_output = llm_response['choices'][0]['message'].get(
