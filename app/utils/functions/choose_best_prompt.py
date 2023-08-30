@@ -29,7 +29,7 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
     }
 
     for i, item in enumerate(chatlog):
-        if item["prompt"]["role"] == "system":
+        if item["role"] == "system":
             chatlog[i] = system_prompt
             break
 

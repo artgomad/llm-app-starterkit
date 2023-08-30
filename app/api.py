@@ -123,7 +123,7 @@ async def websocket_endpoint(websocket: WebSocket):
         if new_system_prompt is not None:
             # Replace the system prompt of the chatlog with the one selected for the next operation
             for i, item in enumerate(chatlog):
-                if item["prompt"]["role"] == "system":
+                if item["role"] == "system":
                     chatlog[i] = new_system_prompt
                     break
 
