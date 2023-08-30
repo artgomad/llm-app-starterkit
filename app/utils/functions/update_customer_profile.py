@@ -4,7 +4,7 @@ import traceback
 from app.chains.BasicChatChain import basicOpenAICompletion
 
 
-async def update_customer_profile(websocket, model_name, chatlog, chatlog_strings, user_question, update_profile_function):
+async def update_customer_profile(websocket, model_name, chatlog, chat_history, user_question, update_profile_function):
     if update_profile_function is None:
         return None
 
@@ -13,7 +13,7 @@ async def update_customer_profile(websocket, model_name, chatlog, chatlog_string
             temperature=0,
             model_name=model_name,
             chatlog=chatlog,
-            chat_history=chatlog_strings,
+            chat_history=chat_history,
             context="",  # No need for external context to update customer profile
             user_question=user_question,
             functions=update_profile_function,

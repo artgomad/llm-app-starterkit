@@ -4,7 +4,7 @@ import traceback
 from app.chains.BasicChatChain import basicOpenAICompletion
 
 
-async def choose_best_prompt(websocket, prompt_options, chatlog, chatlog_strings, user_question):
+async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, user_question):
     if prompt_options is None:
         return None
 
@@ -39,7 +39,7 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chatlog_strings
             temperature=0,
             model_name="gpt-3.5-turbo-0613",
             chatlog=chatlog,
-            chat_history=chatlog_strings,
+            chat_history=chat_history,
             context="",  # Routing decision is not based on database context
             user_question=user_question,
             functions=prompt_choosing_function,
