@@ -43,6 +43,7 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
             context="",  # Routing decision is not based on database context
             user_question=user_question,
             functions=prompt_choosing_function,
+            function_call="auto",
         )
 
         function_call_output = llm_response['choices'][0]['message'].get(
@@ -74,7 +75,7 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
         await websocket.send_json({
             "error": error_message,
             "error_traceback": last_5_lines_tb,
-            "context":  "Error when updating the customer profile.",
+            "context":  "Error when GPT was choosing it's system prompt.",
         })
 
         return None
