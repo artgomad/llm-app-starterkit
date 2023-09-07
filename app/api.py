@@ -170,6 +170,9 @@ async def websocket_endpoint(websocket: WebSocket):
                     all_product_info, context_for_LLM = search_products_based_on_profile(
                         customer_profile_update, knowledge_base, score_threshold)
 
+                # This function is a simple semantic search on all the database
+                elif function_call_output['name'] == 'semantic_search_all_db':
+                    context_for_LLM = context
                 else:
                     print('function without effect')
                     # context_for_LLM equals a function_call_output stringified
