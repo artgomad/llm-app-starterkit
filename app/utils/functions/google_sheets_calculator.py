@@ -31,13 +31,15 @@ def google_sheets_operations(creds, function_output):
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
 
+    items_str = ','.join(map(str, items))
+
     # Prepare the requests
     body = {
         'valueInputOption': 'RAW',
         'data': [
             {'range': INPUT_CELL_SIX_MONTH_DISCOUNT,
                 'values': [[six_month_discount]]},
-            {'range': INPUT_CELL_ITEMS, 'values': [items]}
+            {'range': INPUT_CELL_ITEMS, 'values': [[items_str]]}
         ]
     }
 
