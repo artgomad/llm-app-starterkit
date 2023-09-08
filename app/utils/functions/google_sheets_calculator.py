@@ -32,24 +32,18 @@ def google_sheets_operations(creds, function_output):
     sheet = service.spreadsheets()
 
     # Prepare the requests
-    requests = [
-        {
-            'updateValues': {
-                'range': INPUT_CELL_SIX_MONTH_DISCOUNT,
-                'values': [[six_month_discount]],
-            }
-        },
-        {
-            'updateValues': {
-                'range': INPUT_CELL_ITEMS,
-                'values': [items],
-            }
-        }
-    ]
+    body = {
+        'valueInputOption': 'RAW',
+        'data': [
+            {'range': INPUT_CELL_SIX_MONTH_DISCOUNT,
+                'values': [[six_month_discount]]},
+            {'range': INPUT_CELL_ITEMS, 'values': [items]}
+        ]
+    }
 
     # Send the batchUpdate request
-    response = sheet.batchUpdate(spreadsheetId=SAMPLE_SPREADSHEET_ID, body={
-                                 'requests': requests}).execute()
+    response = sheet.values().batchUpdate(
+        spreadsheetId=SAMPLE_SPREADSHEET_ID, body=body).execute()
 
     print('Updated cell', response)
 

@@ -135,7 +135,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 model_name=model_name,
                 chatlog=chatlog,
                 chat_history=chatlog_strings,
-                context="",  # Routing decision is not based on database context
+                context=context,  # "" if Routing decision is not based on database context
                 user_question=user_question,
                 functions=functions,
                 function_call=function_call,)
