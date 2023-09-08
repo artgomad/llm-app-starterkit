@@ -12,3 +12,7 @@ __pycache__
 .png
 .xlsx
 .pkl
+
+#Google API secrets
+client_secret.json
+token.json

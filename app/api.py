@@ -17,6 +17,7 @@ from app.utils.functions.read_product_details import read_product_details
 from app.utils.functions.compare_products import compare_products
 from app.utils.functions.update_customer_profile import update_customer_profile
 from app.utils.functions.choose_best_prompt import choose_best_prompt
+from app.utils.functions.google_sheets_calculator import google_sheets_calculator
 
 
 load_dotenv()
@@ -174,6 +175,13 @@ async def websocket_endpoint(websocket: WebSocket):
                 elif function_call_output['name'] == 'semantic_search_all_db':
                     context_for_LLM = context  # Retrieved from the original semantic search
                     all_product_info = docs  # Retrieved from the original semantic search
+
+                 # This function is a simple semantic search on all the database
+                elif function_call_output['name'] == 'calculate':
+                    google_sheets_calculator()
+                    context_for_LLM = context  # Retrieved from the original semantic search
+                    all_product_info = docs  # Retrieved from the original semantic search
+
                 else:
                     print('function without effect')
                     # context_for_LLM equals a function_call_output stringified
