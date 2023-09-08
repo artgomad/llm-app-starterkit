@@ -16,9 +16,9 @@ def google_sheets_operations(creds, function_output):
     # Change this to the cell you want to write to
     INPUT_CELL_SIX_MONTH_DISCOUNT = 'User profile!B3'
     INPUT_CELL_ITEMS = 'User profile!C3'
-    OUTPUT_CELL = 'User profile!S4'
-    PRODUCT_INFO_CELL_RANGE = 'User profile!E4:Q50'
-    PRODUCT_ATTRIBUTES_CELL_RANGE = 'User profile!E3:Q3'
+    OUTPUT_CELL = 'User profile!S3'
+    PRODUCT_INFO_CELL_RANGE = 'User profile!E3:Q50'
+    PRODUCT_ATTRIBUTES_CELL_RANGE = 'User profile!E2:Q2'
 
     six_month_discount = function_output.get('six_month_discount', "Yes")
     items = function_output.get('items', [])
