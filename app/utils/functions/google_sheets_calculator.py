@@ -24,7 +24,7 @@ def google_sheets_operations(creds):
 
     # Write to the input cell
     request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=INPUT_CELL,
-                                    valueInputOption='RAW', body={'values': [['Testing it works!']]})
+                                    valueInputOption='RAW', body={'values': [['Yes']]})
     response = request.execute()
 
     print(response)
