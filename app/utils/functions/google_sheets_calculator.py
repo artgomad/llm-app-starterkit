@@ -10,24 +10,42 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of the spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1ljoRDB7EAOEzD-agCkVPiJU8-JU6oRRu2sd5UN4M3ic'
-# Change this to the cell you want to write to
-INPUT_CELL = 'User profile!B3'
-OUTPUT_CELL = 'User profile!S4'
-PRODUCT_INFO_CELL_RANGE = 'User profile!E4:Q50'
-PRODUCT_ATTRIBUTES_CELL_RANGE = 'User profile!E3:Q3'
 
 
-def google_sheets_operations(creds):
+def google_sheets_operations(creds, function_output):
+    # Change this to the cell you want to write to
+    INPUT_CELL_SIX_MONTH_DISCOUNT = 'User profile!B3'
+    INPUT_CELL_ITEMS = 'User profile!C3'
+    OUTPUT_CELL = 'User profile!S4'
+    PRODUCT_INFO_CELL_RANGE = 'User profile!E4:Q50'
+    PRODUCT_ATTRIBUTES_CELL_RANGE = 'User profile!E3:Q3'
+
+    six_month_discount = function_output['six_month_discount']
+    items = function_output['items']
+
     # Call the Sheets API
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
 
-    # Write to the input cell
-    request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=INPUT_CELL,
-                                    valueInputOption='RAW', body={'values': [['Yes']]})
-    response = request.execute()
+    # Prepare the requests
+    requests = [
+        {
+            'updateValues': {
+                'range': INPUT_CELL_SIX_MONTH_DISCOUNT,
+                'values': [[six_month_discount]],
+            }
+        },
+        {
+            'updateValues': {
+                'range': INPUT_CELL_ITEMS,
+                'values': [items],
+            }
+        }
+    ]
 
-    print(response)
+    # Send the batchUpdate request
+    response = sheet.batchUpdate(spreadsheetId=SAMPLE_SPREADSHEET_ID, body={
+                                 'requests': requests}).execute()
 
     print('Updated cell', response)
 
@@ -62,7 +80,7 @@ def google_sheets_operations(creds):
     return objects, value
 
 
-def google_sheets_calculator():
+def google_sheets_calculator(function_output):
     # CONNECTING WITH GOOGLE SHEETS API
 
     creds = None
@@ -102,7 +120,7 @@ def google_sheets_calculator():
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
-    objects, value = google_sheets_operations(creds)
+    objects, value = google_sheets_operations(creds, function_output)
     return objects, value
 
 

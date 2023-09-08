@@ -178,7 +178,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
                  # This function is a simple semantic search on all the database
                 elif function_call_output['name'] == 'calculate':
-                    all_product_info, context_for_LLM = google_sheets_calculator()
+                    all_product_info, context_for_LLM = google_sheets_calculator(
+                        function_output)
 
                 else:
                     print('function without effect')
