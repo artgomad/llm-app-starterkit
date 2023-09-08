@@ -11,13 +11,60 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # The ID and range of the spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1ljoRDB7EAOEzD-agCkVPiJU8-JU6oRRu2sd5UN4M3ic'
 # Change this to the cell you want to write to
-SAMPLE_RANGE_NAME = 'User profile!B3'
+INPUT_CELL = 'User profile!B3'
+OUTPUT_CELL = 'User profile!S4'
+PRODUCT_INFO_CELL_RANGE = 'User profile!E4:Q50'
+PRODUCT_ATTRIBUTES_CELL_RANGE = 'User profile!E3:Q3'
+
+
+def google_sheets_operations(creds):
+    # Call the Sheets API
+    service = build('sheets', 'v4', credentials=creds)
+    sheet = service.spreadsheets()
+
+    # Write to the input cell
+    request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=INPUT_CELL,
+                                    valueInputOption='RAW', body={'values': [['Testing it works!']]})
+    response = request.execute()
+
+    print(response)
+
+    print('Updated cell', response)
+
+    # Read the value of output cell
+    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                range=OUTPUT_CELL).execute()
+    value = result.get('values', [])[0][0]
+
+    print('Extracted cell value', value)
+
+    # Read the values of selected products
+    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                range=PRODUCT_INFO_CELL_RANGE).execute()
+    values = result.get('values', [])
+
+    # Read the column names for the product attributes
+    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                range=PRODUCT_ATTRIBUTES_CELL_RANGE).execute()
+    column_names = result.get('values', [])[0]
+
+    # Convert the values to an array of objects
+    objects = []
+    for row in values:
+        obj = {}
+        for i in range(len(column_names)):
+            if i < len(row):
+                obj[column_names[i]] = row[i]
+        objects.append(obj)
+
+    print('Extracted objects:', objects)
+
+    return objects, value
 
 
 def google_sheets_calculator():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
+    # CONNECTING WITH GOOGLE SHEETS API
+
     creds = None
 
     """
@@ -55,17 +102,8 @@ def google_sheets_calculator():
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
-    service = build('sheets', 'v4', credentials=creds)
-
-    # Call the Sheets API
-    sheet = service.spreadsheets()
-
-    # Write to the specified range
-    request = sheet.values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME,
-                                    valueInputOption='RAW', body={'values': [['Testing it works!']]})
-    response = request.execute()
-
-    print(response)
+    objects, value = google_sheets_operations(creds)
+    return objects, value
 
 
 """
