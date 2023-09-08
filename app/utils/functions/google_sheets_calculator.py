@@ -20,8 +20,12 @@ def google_sheets_operations(creds, function_output):
     PRODUCT_INFO_CELL_RANGE = 'User profile!E4:Q50'
     PRODUCT_ATTRIBUTES_CELL_RANGE = 'User profile!E3:Q3'
 
-    six_month_discount = function_output['six_month_discount']
-    items = function_output['items']
+    six_month_discount = function_output.get('six_month_discount', "Yes")
+    items = function_output.get('items', [])
+
+    # I SHOULD ONLY GO ON IF ITEMS IS NOY AN EMPTY ARRAY
+    if not items:
+        return [], ""
 
     # Call the Sheets API
     service = build('sheets', 'v4', credentials=creds)
