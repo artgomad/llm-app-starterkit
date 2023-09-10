@@ -117,6 +117,9 @@ def google_sheets_operations(creds, function_output):
         object_attribute_columns = [i for i, col_type in enumerate(
             updated_table[0]) if is_object_attribute(col_type)]
 
+        print("object_attribute_columns")
+        print(object_attribute_columns)
+
         for row_idx in range(2, len(updated_table)):
             obj_row = updated_table[row_idx]
             obj = {updated_table[1][col_idx]: obj_row[col_idx]
