@@ -122,16 +122,23 @@ def google_sheets_operations(creds, function_output):
 
         for row_idx in range(2, len(updated_table)):
             obj_row = updated_table[row_idx]
+            print(f'obj_row: {obj_row}')
+            obj = {}
             for col_idx in object_attribute_columns:
                 print(f'col_idx: {col_idx}')
-                print(f'obj_row: {obj_row}')
-                print(f'updated_table[1]: {updated_table[1]}')
-            obj = {updated_table[1][col_idx]: obj_row[col_idx]
-                   for col_idx in object_attribute_columns if obj_row[col_idx]}
+                print(f'attribute: {obj_row[col_idx]}')
+                obj.update({updated_table[1][col_idx]: obj_row[col_idx]})
+
+            print(f'obj: {obj}')
             selected_objects.append(obj)
 
         print("selected_objects")
         print(selected_objects)
+
+        """
+            obj = {updated_table[1][col_idx]: obj_row[col_idx]
+                   for col_idx in object_attribute_columns if obj_row[col_idx]}
+        """
 
         return selected_objects, context_output
 
