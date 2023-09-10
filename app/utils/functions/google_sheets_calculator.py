@@ -47,7 +47,7 @@ def google_sheets_operations(creds, function_output):
             attribute_name = original_table[1][column]  # Row 2 in the column
             cell_value = original_table[2][column]  # Row 3 in the column
             cell_coordinates = 'User profile!' + \
-                col_num_to_letter(column + 1) + '3'
+                col_num_to_letter(column + 2) + '3'
             value_to_write = function_output.get(attribute_name, "")
 
             # Convert value_to_write (a list defined by GPT) to string
