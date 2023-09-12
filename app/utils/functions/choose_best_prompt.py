@@ -4,7 +4,7 @@ import traceback
 from app.chains.BasicChatChain import basicOpenAICompletion
 
 
-async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, user_question):
+async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlog, chat_history, user_question):
     if prompt_options is None:
         return None
 
@@ -29,7 +29,10 @@ async def choose_best_prompt(websocket, prompt_options, chatlog, chat_history, u
     # We are going to inject a new system prompt for this first opperation
     system_prompt = {
         "role": "system",
-                "content": "Always call one of the provided functions"
+        "content":
+        f"""Always call one of the provided functions taking into account the customer profile below.
+            CUSTOMER PROFILE:
+            {json.dumps(customer_profile, indent=2)}""",
     }
 
     for i, item in enumerate(chatlog):

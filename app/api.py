@@ -60,6 +60,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # 00 EXTRACT ALL API PARAMETERS
         payload = json.loads(data)
         chatlog = payload['chatlog']
+        customer_profile = payload.get('customer_profile', None)
         prompt_options = payload.get('dynamic_system_prompt')
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
@@ -114,6 +115,7 @@ async def websocket_endpoint(websocket: WebSocket):
             choose_best_prompt(
                 websocket=websocket,
                 prompt_options=prompt_options,
+                customer_profile=customer_profile,
                 chatlog=chatlog,
                 chat_history=chatlog_strings,
                 user_question=user_question,
