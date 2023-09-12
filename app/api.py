@@ -62,7 +62,7 @@ async def websocket_endpoint(websocket: WebSocket):
         chatlog = payload['chatlog']
         customer_profile = payload.get('customer_profile', None)
         stringified_customer_profile = json.dumps(
-            customer_profile, indent=2) if customer_profile else None
+            customer_profile, indent=2) if customer_profile else ""
         prompt_options = payload.get('dynamic_system_prompt')
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
