@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import traceback
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -143,6 +144,7 @@ def google_sheets_operations(creds, function_output):
 
     except Exception as e:
         print(f"An error occurred: {e}")
+        print(traceback.format_exc())
         # return an empty list and empty string as a fallback
         return [], ""
 
