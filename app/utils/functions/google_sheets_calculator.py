@@ -24,8 +24,9 @@ def col_num_to_letter(n):
 
 def google_sheets_operations(creds, function_output):
 
-    TYPE_RANGE_WRITE = 'User profile!B1:AZ3'
-    TYPE_RANGE_READ = 'User profile!B1:AZ50'
+    SHEET_NAME = function_output.get('calculation_sheet', 'User profile')
+    TYPE_RANGE_WRITE = f'{SHEET_NAME}!B1:AZ3'
+    TYPE_RANGE_READ = f'{SHEET_NAME}!B1:AZ50'
 
     try:
         # 01 READ GOOGLE SHEETS TO IDENTIFY INPUT AND OUTPUT CELLS
@@ -46,7 +47,7 @@ def google_sheets_operations(creds, function_output):
             column_type = original_table[0][column]  # Row 1 in the column
             attribute_name = original_table[1][column]  # Row 2 in the column
             cell_value = original_table[2][column]  # Row 3 in the column
-            cell_coordinates = 'User profile!' + \
+            cell_coordinates = SHEET_NAME + '!' + \
                 col_num_to_letter(column + 2) + '3'
             value_to_write = function_output.get(attribute_name, "")
 
