@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def format_messages(chatlog=[], chat_history="", context="", user_question=""):
+def format_messages(chatlog=[], customer_profile="", chat_history="", context="", user_question=""):
     messages = []
     for item in chatlog:
         content_with_replacements = item['content'].replace("{chat_history}", chat_history).replace(
-            "{context}", context).replace("{user_question}", user_question)
+            "{context}", context).replace("{user_question}", user_question).replace("{customer_profile}", customer_profile)
 
         if item['role'] == 'user':
             messages.append(
@@ -31,8 +31,9 @@ def format_messages(chatlog=[], chat_history="", context="", user_question=""):
     return messages
 
 
-def basicOpenAICompletion(temperature, model_name, chatlog, chat_history, context, user_question, functions, function_call):
-    messages = format_messages(chatlog, chat_history, context, user_question)
+def basicOpenAICompletion(temperature, model_name, chatlog, customer_profile, chat_history, context, user_question, functions, function_call):
+    messages = format_messages(
+        chatlog, customer_profile, chat_history, context, user_question)
     response = openai.ChatCompletion.create(
         model=model_name,
         messages=messages,

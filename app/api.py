@@ -136,6 +136,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 temperature=temperature,
                 model_name=model_name,
                 chatlog=chatlog,
+                customer_profile=customer_profile,
                 chat_history=chatlog_strings,
                 context=context,  # "" if Routing decision is not based on database context
                 user_question=user_question,
@@ -198,6 +199,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         temperature=temperature,
                         model_name=model_name,
                         chatlog=chatlog,
+                        customer_profile=customer_profile,
                         chat_history=chatlog_strings,
                         context=context_for_LLM,
                         user_question=user_question,
