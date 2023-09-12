@@ -61,6 +61,8 @@ async def websocket_endpoint(websocket: WebSocket):
         payload = json.loads(data)
         chatlog = payload['chatlog']
         customer_profile = payload.get('customer_profile', None)
+        stringified_customer_profile = json.dumps(
+            customer_profile, indent=2) if customer_profile else None
         prompt_options = payload.get('dynamic_system_prompt')
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
@@ -115,7 +117,7 @@ async def websocket_endpoint(websocket: WebSocket):
             choose_best_prompt(
                 websocket=websocket,
                 prompt_options=prompt_options,
-                customer_profile=customer_profile,
+                customer_profile=stringified_customer_profile,
                 chatlog=chatlog,
                 chat_history=chatlog_strings,
                 user_question=user_question,
@@ -136,7 +138,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 temperature=temperature,
                 model_name=model_name,
                 chatlog=chatlog,
-                customer_profile=customer_profile,
+                customer_profile=stringified_customer_profile,
                 chat_history=chatlog_strings,
                 context=context,  # "" if Routing decision is not based on database context
                 user_question=user_question,
@@ -199,7 +201,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         temperature=temperature,
                         model_name=model_name,
                         chatlog=chatlog,
-                        customer_profile=customer_profile,
+                        customer_profile=stringified_customer_profile,
                         chat_history=chatlog_strings,
                         context=context_for_LLM,
                         user_question=user_question,

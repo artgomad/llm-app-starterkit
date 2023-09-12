@@ -33,7 +33,7 @@ async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlo
         f"""You are a classification algorithm whose goal is to select the most relevant function given the customer profile below and the previous conversation.
             You are not a chatbot, NEVER answer the user directly. ALWAYS select one of the given functions.
             CUSTOMER PROFILE:
-            {json.dumps(customer_profile, indent=2)}""",
+            {customer_profile}""",
     }
 
     for i, item in enumerate(chatlog):
