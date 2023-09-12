@@ -31,7 +31,7 @@ def format_messages(chatlog=[], customer_profile="", chat_history="", context=""
     return messages
 
 
-def basicOpenAICompletion(temperature, model_name, chatlog, customer_profile, chat_history, context, user_question, functions, function_call):
+def basicOpenAICompletion(temperature, model_name, chatlog, customer_profile=None, chat_history=None, context=None, user_question=None, functions=None, function_call=None):
     messages = format_messages(
         chatlog, customer_profile, chat_history, context, user_question)
     response = openai.ChatCompletion.create(
