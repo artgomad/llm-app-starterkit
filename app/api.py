@@ -33,6 +33,10 @@ origins = [
     "https://script.google.com",
     "https://script.googleusercontent.com",
     "https://aquamarine-copywriter-978461.framer.app/",
+    # Sanofi project
+    "https://framer.com/projects/Diabetes-Management-Chatbot--LjcZAHtH8keu6MDl96ea-b41wd?preview=1&node=zjX5sW56V",
+    "https://modest-products-919721.framer.app",
+    "https://diabetes-management-sanofi.framer.ai",
 ]
 
 app.add_middleware(
