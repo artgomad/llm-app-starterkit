@@ -64,6 +64,7 @@ async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlo
         print(function_call_output)
 
         new_system_prompt = None
+        chosen_prompt_name = ""
 
         if function_call_output:
             chosen_prompt_name = function_call_output['name']
@@ -73,6 +74,7 @@ async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlo
                     new_system_prompt = item['prompt']
                     break
         else:
+            chosen_prompt_name = prompt_options[0]['name']
             new_system_prompt = prompts_array[0]
 
         print('chosen_prompt = ')
@@ -80,6 +82,7 @@ async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlo
 
         # Send the profile update to the client
         await websocket.send_json({
+            "intent": chosen_prompt_name,
             "selected_system_prompt": new_system_prompt,
         })
 
