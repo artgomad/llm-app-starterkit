@@ -265,7 +265,6 @@ async def websocket_endpoint(websocket: WebSocket):
         model_name = payload.get('model', 'gpt-3.5-turbo')
         context_items = payload.get('context_items', 3)
         functions = payload.get('functions', None)
-
         chatlog_strings = ""
         context = ""
         all_product_info = []
