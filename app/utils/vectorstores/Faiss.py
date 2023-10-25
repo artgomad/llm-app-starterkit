@@ -59,6 +59,7 @@ class Faiss():
         print(self.vectorstore)
         # Check if the pickle file exists in vecotrstore folder and load it
         if os.path.exists(self.vectorstore):
+            print("path exists")
             with open(self.vectorstore, "rb") as f:
                 vectorstore = pickle.load(f)
                 print("loading vectorstore...")
