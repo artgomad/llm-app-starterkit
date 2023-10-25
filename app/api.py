@@ -286,20 +286,17 @@ async def websocket_endpoint(websocket: WebSocket):
             contents = []
             spr_values = []
             sources = []
-            index = 0
 
             # Loop through each document in docs_result
             for doc in docs:
                 contents.append(doc['content'])
-                sources[index] = doc['metadata']['doc_name'] + \
-                    ' - ' + doc['metadata']['h1']
+                sources.append(doc['metadata']['doc_name'] +
+                               ' - ' + doc['metadata']['h1'])
 
                 # Check if SPR is unique before adding to spr_values
                 spr = doc['metadata']['SPR']
                 if spr not in spr_values:
                     spr_values.append(spr)
-
-                index += 1
 
             # Convert lists to formatted strings
             contents_str = '\n'.join(contents)
