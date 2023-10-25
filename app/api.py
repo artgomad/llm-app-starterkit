@@ -257,9 +257,6 @@ async def websocket_endpoint(websocket: WebSocket):
         # 00 EXTRACT ALL API PARAMETERS
         payload = json.loads(data)
         chatlog = payload['chatlog']
-        customer_profile = payload.get('customer_profile', None)
-        stringified_customer_profile = json.dumps(
-            customer_profile, indent=2) if customer_profile else ""
         knowledge_base = payload.get('knowledge_base')
         temperature = payload.get('temperature', 0)
         model_name = payload.get('model', 'gpt-3.5-turbo')
@@ -326,9 +323,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 temperature=temperature,
                 model_name=model_name,
                 chatlog=chatlog,
-                customer_profile=stringified_customer_profile,
+                # I'm passing the spr as second variable to ingest in the prompt
+                customer_profile=spr_values_str,
                 chat_history=chatlog_strings,
-                context=context,
+                context=contents_str,  # I'm passing the contents as context
                 user_question=user_question,
                 functions=functions,
                 function_call='none',)
