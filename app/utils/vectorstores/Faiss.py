@@ -56,6 +56,7 @@ class Faiss():
 
     def vector_search(self, query: str, number_of_outputs: int) -> str:
         print('User question: ' + query)
+        print(self.vectorstore)
         # Check if the pickle file exists in vecotrstore folder and load it
         if os.path.exists(self.vectorstore):
             with open(self.vectorstore, "rb") as f:
