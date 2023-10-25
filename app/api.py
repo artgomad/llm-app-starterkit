@@ -299,16 +299,11 @@ async def websocket_endpoint(websocket: WebSocket):
             contents_str = '\n'.join(contents)
             spr_values_str = '\n'.join(spr_values)
 
-            # Create the final string
-            result_string = f"""
-            Your context to answer the user question is the following:
-            {contents_str}
-
-            If necessary to answer the user question you can unpack information from the following priming statements:
-            {spr_values_str}
-            """
-            context = result_string
-            print(context)
+            for item in chatlog:
+                if (item['content'] == 'system'):
+                    context = item['content'].replace(
+                        "{context}", contents_str).replace("{customer_profile}", spr_values_str)
+                    print(context)
 
             if context == "":
                 print('No context found')
