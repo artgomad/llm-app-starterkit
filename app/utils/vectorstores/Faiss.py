@@ -50,7 +50,8 @@ class Faiss():
             texts=contents, embedding=embedding, metadatas=metadata)
 
         # Make sure the directory exists before saving the vectorstore
-        os.makedirs(os.path.dirname(self.vectorstore), exist_ok=True)
+        print(VECTORSTORE_FOLDER)
+        os.makedirs(os.path.dirname(VECTORSTORE_FOLDER), exist_ok=True)
 
         # Save vectorstore to a pickle file
         with open(self.vectorstore, "wb") as f:
