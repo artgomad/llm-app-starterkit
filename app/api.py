@@ -246,6 +246,118 @@ async def websocket_endpoint(websocket: WebSocket):
             })
 
 
+@app.websocket("/rag_&_SPR")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_json({"message": "Let me think..."})
+
+        # 00 EXTRACT ALL API PARAMETERS
+        payload = json.loads(data)
+        chatlog = payload['chatlog']
+        customer_profile = payload.get('customer_profile', None)
+        stringified_customer_profile = json.dumps(
+            customer_profile, indent=2) if customer_profile else ""
+        knowledge_base = payload.get('knowledge_base')
+        temperature = payload.get('temperature', 0)
+        model_name = payload.get('model', 'gpt-3.5-turbo')
+        context_items = payload.get('context_items', 3)
+        functions = payload.get('functions', None)
+
+        chatlog_strings = ""
+        context = ""
+        all_product_info = []
+
+        # Format chatlog to be fed as agent memory
+        for item in chatlog:
+            chatlog_strings += item['role'] + ': ' + item['content'] + '\n'
+
+        user_question = chatlog[-1]['content']
+        returned_context = "You haven't defined any knowledge base."
+
+        # Retrieve context from vectorstore
+        if knowledge_base is not None:
+            # Use the last chatlog message as search query
+            print(knowledge_base)
+            query = chatlog[-1]['content']  # chatlog_strings #
+            faiss = Faiss(file_name=knowledge_base)
+            docs, docs_content = faiss.vector_search(
+                query=query, number_of_outputs=context_items)
+
+            # Initialize lists to store content and metadata SPR values
+            contents = []
+            spr_values = []
+
+            # Loop through each document in docs_result
+            for doc in docs:
+                contents.append(doc['content'])
+
+                # Check if SPR is unique before adding to spr_values
+                spr = doc['metadata']['SPR']
+                if spr not in spr_values:
+                    spr_values.append(spr)
+
+            # Convert lists to formatted strings
+            contents_str = '\n'.join(contents)
+            spr_values_str = '\n'.join(spr_values)
+
+            # Create the final string
+            result_string = f"""
+            Your context to answer the user question is the following:
+            {contents_str}
+
+            If necessary to answer the user question you can unpack information from the following priming statements:
+            {spr_values_str}
+            """
+            context = result_string
+            print(context)
+
+            if context == "":
+                print('No context found')
+                returned_context = "The knowledge base you defined doesn't exit yet. Execute the code from your Google Sheets App Script extension"
+            else:
+                print('We found a context!')
+                returned_context = context
+
+        # LLM COMPLETION
+        try:
+            llm_response, inputPrompt = basicOpenAICompletion(
+                temperature=temperature,
+                model_name=model_name,
+                chatlog=chatlog,
+                customer_profile=stringified_customer_profile,
+                chat_history=chatlog_strings,
+                context=context,
+                user_question=user_question,
+                functions=functions,
+                function_call='none',)
+
+            print('llm response = ')
+            print(llm_response)
+
+            await websocket.send_json({
+                "data":  llm_response,
+                "context":  returned_context,
+                "context_metadata": all_product_info,
+                "inputPrompt": inputPrompt,
+            })
+
+        except Exception as e:
+            traceback.print_exc()
+            error_message = str(e)
+            tb_str = traceback.format_exc()
+            tb_lines = tb_str.split('\n')
+            last_5_lines_tb = '\n'.join(tb_lines[-6:])
+            print("ERROR: ", last_5_lines_tb)
+            await websocket.send_json({
+                "error": error_message,
+                "error_traceback": last_5_lines_tb,
+                "context":  returned_context,
+            })
+
+
 @app.post("/create_vectorstore")
 async def create_vectorstore(data: CSVData):
     item = json.loads(data.item)
