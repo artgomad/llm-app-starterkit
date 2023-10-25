@@ -300,7 +300,7 @@ async def websocket_endpoint(websocket: WebSocket):
             spr_values_str = '\n'.join(spr_values)
 
             for item in chatlog:
-                if (item['content'] == 'system'):
+                if (item['role'] == 'system'):
                     context = item['content'].replace(
                         "{context}", contents_str).replace("{customer_profile}", spr_values_str)
                     print(context)
