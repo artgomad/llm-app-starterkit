@@ -1,9 +1,11 @@
 import os
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-# PROJECT_ROOT = os.path.dirname(ROOT_DIR)
+PROJECT_ROOT = os.path.dirname(ROOT_DIR)
+print("PROJECT_ROOT")
+print(PROJECT_ROOT)
 
-DATA_PATH = os.path.join(ROOT_DIR, 'data')
+DATA_PATH = os.path.join(PROJECT_ROOT, 'data')
 
 CSV_FOLDER = os.path.join(DATA_PATH, 'csv_files/')
 VECTORSTORE_FOLDER = os.path.join(
