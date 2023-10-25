@@ -10,5 +10,5 @@ VECTORSTORE_FOLDER = os.path.join(
     DATA_PATH, 'vectorstores/')  # 'data/vectorstores/'
 
 # Create the folders if they don't exist
-os.makedirs(CSV_FOLDER, exist_ok=True)
-os.makedirs(VECTORSTORE_FOLDER, exist_ok=True)
+# os.makedirs(CSV_FOLDER, exist_ok=True)
+# os.makedirs(VECTORSTORE_FOLDER, exist_ok=True)
