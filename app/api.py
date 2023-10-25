@@ -92,6 +92,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # Retrieve context from vectorstore
         if knowledge_base is not None:
             # Use the last chatlog message as search query
+            print(knowledge_base)
             query = chatlog[-1]['content']  # chatlog_strings #
             faiss = Faiss(file_name=knowledge_base)
             docs, docs_content = faiss.vector_search(
