@@ -49,6 +49,9 @@ class Faiss():
         vectorstore = FAISS.from_texts(
             texts=contents, embedding=embedding, metadatas=metadata)
 
+        # Make sure the directory exists before saving the vectorstore
+        os.makedirs(os.path.dirname(self.vectorstore), exist_ok=True)
+
         # Save vectorstore to a pickle file
         with open(self.vectorstore, "wb") as f:
             print("SAVING VECTORSTORE TO PICKLE FILE")
