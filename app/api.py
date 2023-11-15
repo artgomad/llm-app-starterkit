@@ -18,6 +18,7 @@ from app.utils.functions.compare_products import compare_products
 from app.utils.functions.update_customer_profile import update_customer_profile
 from app.utils.functions.choose_best_prompt import choose_best_prompt
 from app.utils.functions.google_sheets_calculator import google_sheets_calculator
+from app.utils.functions.google_sheets_calculator_v2 import google_sheets_calculator_v2, Config
 
 
 load_dotenv()
@@ -244,6 +245,48 @@ async def websocket_endpoint(websocket: WebSocket):
                 "error_traceback": last_5_lines_tb,
                 "context":  returned_context,
             })
+
+
+@app.websocket("/googleSheetsAPI")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        try:
+            data = await websocket.receive_text()
+            await websocket.send_json({"message": "Let me think..."})
+
+            payload = json.loads(data)
+            spreadsheet_id = payload.get(
+                'spreadsheet_id', '1ljoRDB7EAOEzD-agCkVPiJU8-JU6oRRu2sd5UN4M3ic')
+            sheet_name = payload.get('sheet_name', 'User profile')
+            inputJSON = payload.get('inputJSON', None)
+            config = Config()
+
+            objects, message = google_sheets_calculator_v2(
+                config, spreadsheet_id, sheet_name, inputJSON)
+
+            print(objects, message)
+
+            await websocket.send_json({
+                "data":  message,
+                "context_metadata": objects,
+            })
+
+        except Exception as e:
+            traceback.print_exc()
+            error_message = str(e)
+            tb_str = traceback.format_exc()
+            tb_lines = tb_str.split('\n')
+            last_5_lines_tb = '\n'.join(tb_lines[-6:])
+            print("ERROR: ", last_5_lines_tb)
+            await websocket.send_json({
+                "error": error_message,
+                "error_traceback": last_5_lines_tb,
+            })
+            break
+
+    await websocket.close()
 
 
 @app.websocket("/rag_&_SPR")
