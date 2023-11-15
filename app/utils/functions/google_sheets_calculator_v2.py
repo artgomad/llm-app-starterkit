@@ -5,16 +5,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from typing import Any, Dict, Tuple, Optional
-from app.utils.token_management.google_sheets_authenticator import GoogleSheetsAuthenticator, Config
+# from app.utils.token_management.google_sheets_authenticator import GoogleSheetsAuthenticator, Config
 
-''' 
-# I NEED TO DELETE THIS CLASS BECAUSE IT COMES FROM THE GOOGLE_SHEETS_AUTHENTICATOR.PY FILE
 
 class Config:
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # Authentication handler
-# I NEED TO DELETE THIS CLASS BECAUSE IT COMES FROM THE GOOGLE_SHEETS_AUTHENTICATOR.PY FILE
 
 
 class GoogleSheetsAuthenticator:
@@ -47,7 +44,7 @@ class GoogleSheetsAuthenticator:
     def save_credentials(self):
         with open('token.json', 'w') as token_file:
             token_file.write(self.creds.to_json())
-'''
+
 
 # Google Sheets API communication
 
