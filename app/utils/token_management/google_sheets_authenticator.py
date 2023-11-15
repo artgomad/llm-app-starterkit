@@ -13,7 +13,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 # Import the MongoDB client from mongo_db_setup
-from .mongo_db_setup import tokens_collection
+from app.utils.token_management.mongo_db_setup import tokens_collection
 
 
 class Config:
