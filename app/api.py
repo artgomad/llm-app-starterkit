@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, UploadFile, File
+from fastapi import FastAPI, WebSocket, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict
 import openai
@@ -246,47 +246,45 @@ async def websocket_endpoint(websocket: WebSocket):
                 "context":  returned_context,
             })
 
+# Define your input model for POST request
 
-@app.websocket("/googleSheetsAPI")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
 
-    while True:
-        try:
-            data = await websocket.receive_text()
-            await websocket.send_json({"message": "Let me think..."})
+class SpreadsheetInput(BaseModel):
+    spreadsheet_id: str
+    sheet_name: str
+    inputJSON: dict
 
-            payload = json.loads(data)
-            spreadsheet_id = payload.get(
-                'spreadsheet_id', '1ljoRDB7EAOEzD-agCkVPiJU8-JU6oRRu2sd5UN4M3ic')
-            sheet_name = payload.get('sheet_name', 'User profile')
-            inputJSON = payload.get('inputJSON', None)
-            config = Config()
 
-            objects, message = google_sheets_calculator_v2(
-                config, spreadsheet_id, sheet_name, inputJSON)
+@app.post("/googleSheetsAPI")
+async def google_sheets_api_endpoint(input: SpreadsheetInput):
+    try:
+        spreadsheet_id = input.spreadsheet_id or '1ljoRDB7EAOEzD-agCkVPiJU8-JU6oRRu2sd5UN4M3ic'
+        sheet_name = input.sheet_name or 'User profile'
+        inputJSON = input.inputJSON
 
-            print(objects, message)
+        config = Config()
 
-            await websocket.send_json({
-                "data":  message,
-                "context_metadata": objects,
-            })
+        objects, message = google_sheets_calculator_v2(
+            config, spreadsheet_id, sheet_name, inputJSON)
 
-        except Exception as e:
-            traceback.print_exc()
-            error_message = str(e)
-            tb_str = traceback.format_exc()
-            tb_lines = tb_str.split('\n')
-            last_5_lines_tb = '\n'.join(tb_lines[-6:])
-            print("ERROR: ", last_5_lines_tb)
-            await websocket.send_json({
-                "error": error_message,
-                "error_traceback": last_5_lines_tb,
-            })
-            break
+        print(objects, message)
 
-    await websocket.close()
+        return {
+            "data": message,
+            "context_metadata": objects,
+        }
+
+    except Exception as e:
+        traceback.print_exc()
+        error_message = str(e)
+        tb_str = traceback.format_exc()
+        tb_lines = tb_str.split('\n')
+        last_5_lines_tb = '\n'.join(tb_lines[-6:])
+        print("ERROR: ", last_5_lines_tb)
+        raise HTTPException(status_code=500, detail={
+            "error": error_message,
+            "error_traceback": last_5_lines_tb,
+        })
 
 
 @app.websocket("/rag_&_SPR")
