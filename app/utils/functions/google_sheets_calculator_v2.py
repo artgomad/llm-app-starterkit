@@ -5,14 +5,16 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from typing import Any, Dict, Tuple, Optional
+from app.utils.token_management.google_sheets_authenticator import GoogleSheetsAuthenticator, Config
 
-# Configuration class
-
+''' 
+# I NEED TO DELETE THIS CLASS BECAUSE IT COMES FROM THE GOOGLE_SHEETS_AUTHENTICATOR.PY FILE
 
 class Config:
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # Authentication handler
+# I NEED TO DELETE THIS CLASS BECAUSE IT COMES FROM THE GOOGLE_SHEETS_AUTHENTICATOR.PY FILE
 
 
 class GoogleSheetsAuthenticator:
@@ -45,6 +47,7 @@ class GoogleSheetsAuthenticator:
     def save_credentials(self):
         with open('token.json', 'w') as token_file:
             token_file.write(self.creds.to_json())
+'''
 
 # Google Sheets API communication
 
@@ -86,7 +89,8 @@ def col_num_to_letter(n):
 
 
 def google_sheets_calculator_v2(config: Config, spreadsheet_id: str, sheet_name: str, function_output: dict) -> Tuple[Optional[Dict], str]:
-    authenticator = GoogleSheetsAuthenticator(config)
+    config = Config()
+    authenticator = GoogleSheetsAuthenticator(config.SCOPES)
     if not authenticator.creds or not authenticator.creds.valid:
         authenticator.refresh_credentials()
 
