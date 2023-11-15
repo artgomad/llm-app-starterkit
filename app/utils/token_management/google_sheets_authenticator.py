@@ -6,7 +6,7 @@
 # refreshing them upon expiration, and initiating a new authentication flow if necessary.
 # It is designed to interact seamlessly with the Google Sheets API and a MongoDB database
 # configured in the mongo_db_setup module.
-
+import os
 import json
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
@@ -44,9 +44,12 @@ class GoogleSheetsAuthenticator:
                 upsert=True
             )
         else:
+            # Load client secrets from an environment variable
+            client_secrets_json = json.loads(
+                os.environ['GOOGLE_CLIENT_SECRET'])
             # Perform the OAuth flow to obtain new credentials
             flow = InstalledAppFlow.from_client_secrets_file(
-                'client_secret.json', self.scopes)
+                client_secrets_json, self.scopes)
             self.creds = flow.run_local_server(port=0)
             # Save the new credentials to MongoDB
             tokens_collection.insert_one({
