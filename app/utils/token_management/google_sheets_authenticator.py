@@ -48,7 +48,7 @@ class GoogleSheetsAuthenticator:
             client_secrets_json = json.loads(
                 os.environ['GOOGLE_CLIENT_SECRET'])
             # Perform the OAuth flow to obtain new credentials
-            flow = InstalledAppFlow.from_client_secrets_file(
+            flow = InstalledAppFlow.from_client_config(
                 client_secrets_json, self.scopes)
             self.creds = flow.run_local_server(port=0)
             # Save the new credentials to MongoDB
