@@ -46,7 +46,7 @@ class GoogleSheetsAuthenticator:
         else:
             # Perform the OAuth flow to obtain new credentials
             flow = InstalledAppFlow.from_client_secrets_file(
-                'client_secret.json', self.config.SCOPES)
+                'client_secret.json', self.scopes)
             self.creds = flow.run_local_server(port=0)
             # Save the new credentials to MongoDB
             tokens_collection.insert_one({
