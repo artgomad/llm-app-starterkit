@@ -19,7 +19,7 @@ class GPT_Assistant_API:
         """
         self.client = client
         self.assistant = self.create_assistant(
-            client, name, description, instructions, tools, model)
+            name, description, instructions, tools, model)
 
     def create_assistant(self, name, description, instructions, tools, model):
         """
