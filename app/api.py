@@ -19,6 +19,7 @@ from app.utils.functions.update_customer_profile import update_customer_profile
 from app.utils.functions.choose_best_prompt import choose_best_prompt
 from app.utils.functions.google_sheets_calculator import google_sheets_calculator
 from app.utils.functions.google_sheets_calculator_v2 import google_sheets_calculator_v2, Config
+from app.agents.gpt_assistant_basic import assistant_api_interaction
 
 
 load_dotenv()
@@ -246,7 +247,49 @@ async def websocket_endpoint(websocket: WebSocket):
                 "context":  returned_context,
             })
 
-# Define your input model for POST request
+
+@app.websocket("/assistantAPI")
+async def assistantAPI(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_json({"message": "Let me think..."})
+
+        # 00 EXTRACT ALL API PARAMETERS
+        payload = json.loads(data)
+        assistant_id_to_use = payload.get('assistant_id_to_use', None)
+        thread_id_to_use = payload.get('thread_id_to_use', None)
+        name = payload.get('name', 'Default Assistant')
+        description = payload.get('description', '')
+        instructions = payload.get('instructions', '')
+        tools = payload.get('tools', [])
+        model = payload.get('model', "gpt-3.5-turbo-1106")
+        content = payload.get('content', '')
+
+        try:
+            await assistant_api_interaction(
+                websocket=websocket,
+                assistant_id=assistant_id_to_use,
+                thread_id=thread_id_to_use,
+                name=name,
+                description=description,
+                instructions=instructions,
+                tools=tools,
+                model=model,
+                content=content
+            )
+        except Exception as e:
+            traceback.print_exc()
+            error_message = str(e)
+            tb_str = traceback.format_exc()
+            tb_lines = tb_str.split('\n')
+            last_5_lines_tb = '\n'.join(tb_lines[-6:])
+            print("ERROR: ", last_5_lines_tb)
+            await websocket.send_json({
+                "error": error_message,
+                "error_traceback": last_5_lines_tb,
+            })
 
 
 class SpreadsheetInput(BaseModel):
