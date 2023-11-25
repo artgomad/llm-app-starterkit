@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from fastapi import WebSocket
 import time
+from app.utils.functions.grundfos_elasticsearch import grundfos_elasticsearch
 
 load_dotenv()  # Load .env file
 
@@ -118,16 +119,23 @@ class GPT_Assistant_API:
             thread_id=thread.id,
             assistant_id=assistant.id,
         )
+        start_time = time.time()
+
         # wait for the run to complete
         while True:
+            current_time = time.time()
+            elapsed_time = current_time - start_time
+
             runInfo = self.client.beta.threads.runs.retrieve(
                 thread_id=thread.id, run_id=run.id)
             print(runInfo.status)
             if runInfo.completed_at:
-                # elapsed = runInfo.completed_at - runInfo.created_at
-                # elapsed = time.strftime("%H:%M:%S", time.gmtime(elapsed))
                 print(f"Run completed")
                 break
+            elif elapsed_time > 10:  # Check if more than 10 seconds have elapsed
+                print("Timeout: The run did not complete in 10 seconds.")
+                break
+
             print("Waiting 1sec...")
             time.sleep(1)
 
