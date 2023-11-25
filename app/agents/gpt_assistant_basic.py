@@ -134,8 +134,8 @@ class GPT_Assistant_API:
                 thread_id=thread.id, run_id=run.id)
             print(run_steps)
 
-            if run_steps.data[0]:
-                if run_steps.data[0].step_details.tool_calls[0]:
+            if run_steps.data:
+                if run_steps.data[0].step_details.tool_calls:
                     function_tool_call = run_steps.data[0].step_details.tool_calls[0]
                     print(function_tool_call)
 
