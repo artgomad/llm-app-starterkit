@@ -133,10 +133,15 @@ class GPT_Assistant_API:
         print("All done...")
         # Get messages from the thread
         messages = self.client.beta.threads.messages.list(thread.id)
+        print(messages.data[0])
+
         message_content = messages.data[0].content[0].text.value
 
         message_object = {
-            'role': messages.data[0].content[0].role, 'content': message_content, 'metadata': [], }
+            'role': messages.data[0].role,
+            'content': message_content,
+            'metadata': []
+        }
 
         print(message_object)
         print(message_content,
