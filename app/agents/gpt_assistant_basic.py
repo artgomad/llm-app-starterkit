@@ -128,11 +128,21 @@ class GPT_Assistant_API:
 
             runInfo = self.client.beta.threads.runs.retrieve(
                 thread_id=thread.id, run_id=run.id)
+            print(runInfo.status)
+
             run_steps = self.client.beta.threads.runs.steps.list(
                 thread_id=thread.id, run_id=run.id)
-
-            print(runInfo.status)
             print(run_steps)
+
+            function_tool_call = run_steps.data[0].step_details.tool_calls[0]
+            print(function_tool_call)
+
+            function_arguments = function_tool_call.function.arguments
+            function_name = function_tool_call.function.name
+
+            # Print out the variables
+            print("Function Arguments:", function_arguments)
+            print("Function Name:", function_name)
 
             if runInfo.completed_at:
                 print(f"Run completed")
