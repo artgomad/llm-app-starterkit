@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from fastapi import WebSocket
 import time
+import json
 from app.utils.functions.grundfos_elasticsearch import grundfos_elasticsearch
 
 load_dotenv()  # Load .env file
@@ -128,16 +129,16 @@ class GPT_Assistant_API:
 
             runInfo = self.client.beta.threads.runs.retrieve(
                 thread_id=thread.id, run_id=run.id)
-            print(runInfo.status)
+            print("Run status: ", runInfo.status)
 
             run_steps = self.client.beta.threads.runs.steps.list(
                 thread_id=thread.id, run_id=run.id)
-            print(run_steps)
+            # print(run_steps)
 
             if run_steps.data:
                 if run_steps.data[0].step_details.tool_calls:
                     function_tool_call = run_steps.data[0].step_details.tool_calls[0]
-                    print(function_tool_call)
+                    # print(function_tool_call)
 
                     function_arguments = function_tool_call.function.arguments
                     function_name = function_tool_call.function.name
@@ -147,6 +148,15 @@ class GPT_Assistant_API:
                         f"{bcolors.OKCYAN}Function Arguments: {function_arguments}{bcolors.ENDC}")
                     print(
                         f"{bcolors.OKCYAN}Function Name: {function_name}{bcolors.ENDC}")
+
+                    if function_name and function_arguments:
+                        # Parse the JSON string into a dictionary
+                        arguments_dict = json.loads(function_arguments)
+                        # Call the function using its name as a string and passing the arguments
+                        output = getattr(globals()[function_name], function_name)(
+                            **arguments_dict)
+
+                        print(output)
 
             if runInfo.completed_at:
                 print(f"Run completed")
