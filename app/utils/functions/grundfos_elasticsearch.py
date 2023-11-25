@@ -3,6 +3,8 @@ import json
 
 
 def grundfos_elasticsearch(query):
+    print("Triggered grundfos_elasticsearch")
+    print(query)
     # The endpoint URL from the schema
     url = "https://api.grundfos.com/search"
 
