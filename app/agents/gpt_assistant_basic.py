@@ -108,19 +108,20 @@ class GPT_Assistant_API:
         messages = self.client.beta.threads.messages.list(thread_id=thread.id)
         return messages
 
-    async def get_answer(self, thread, assistant=None):
+    def get_answer(self, thread, assistant=None):
         """
         Run the thread with the assistant.
         """
         if not assistant:
             assistant = self.assistant
-        run = await self.client.beta.threads.runs.create(
+        run = self.client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=assistant.id,
         )
         # wait for the run to complete
         while True:
-            runInfo = await self.client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+            runInfo = self.client.beta.threads.runs.retrieve(
+                thread_id=thread.id, run_id=run.id)
             if runInfo.completed_at:
                 # elapsed = runInfo.completed_at - runInfo.created_at
                 # elapsed = time.strftime("%H:%M:%S", time.gmtime(elapsed))
@@ -131,6 +132,6 @@ class GPT_Assistant_API:
 
         print("All done...")
         # Get messages from the thread
-        messages = await self.client.beta.threads.messages.list(thread.id)
+        messages = self.client.beta.threads.messages.list(thread.id)
         message_content = messages.data[0].content[0].text.value
         return message_content
