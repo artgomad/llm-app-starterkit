@@ -1,9 +1,21 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 from fastapi import WebSocket
+import time
 
 load_dotenv()  # Load .env file
-client = OpenAI()
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 class GPT_Assistant_API:
@@ -14,24 +26,40 @@ class GPT_Assistant_API:
     """
 
     def __init__(self, client, name, description, instructions, tools=[], model="gpt-3.5-turbo-1106"):
-        """
-        Create a new Assistant.
-        """
         self.client = client
-        self.assistant = self.create_assistant(
-            name, description, instructions, tools, model)
+        self.name = name
+        self.description = description
+        self.instructions = instructions
+        self.tools = tools
+        self.model = model
 
-    def create_assistant(self, name, description, instructions, tools, model):
+    async def get_assistant_and_thread(self, assistant_id=None, thread_id=None):
+        # Perform async operations here to initialize assistant and thread
+        if assistant_id:
+            self.assistant = self.get_assistant(assistant_id)
+        else:
+            self.assistant = await self.create_assistant(self.name, self.description, self.instructions, self.tools, self.model)
+
+        if thread_id:
+            self.thread = self.get_thread(thread_id)
+        else:
+            self.thread = await self.start_new_thread()
+
+        return self
+
+    async def create_assistant(self, name, description, instructions, tools, model):
         """
         Create a new assistant with the given parameters.
         """
-        assistant = self.client.beta.assistants.create(
+        assistant = await self.client.beta.assistants.create(
             name=name,
             description=description,
             instructions=instructions,
             tools=tools,
             model=model
         )
+        print("Created assistant with id:",
+              f"{bcolors.HEADER}{assistant.id}{bcolors.ENDC}")
         return assistant
 
     def get_assistant(self, assistant_id):
@@ -39,27 +67,33 @@ class GPT_Assistant_API:
         Get an already made assistant by ID.
         """
         assistant = self.client.beta.assistants.retrieve(assistant_id)
+        print("Retrieved assistant with id:",
+              f"{bcolors.HEADER}{assistant.id}{bcolors.ENDC}")
         return assistant
 
-    def start_new_chat(self):
+    async def start_new_thread(self):
         """
         Start a new chat with a user.
         """
-        empty_thread = self.client.beta.threads.create()
+        empty_thread = await self.client.beta.threads.create()
+        print("Created thread with id:",
+              f"{bcolors.HEADER}{empty_thread.id}{bcolors.ENDC}")
         return empty_thread
 
-    def get_chat(self, thread_id):
+    def get_thread(self, thread_id):
         """
         Retrieve previous chat/Thread by ID.
         """
         thread = self.client.beta.threads.retrieve(thread_id)
+        print("Reusing thread with id:",
+              f"{bcolors.HEADER}{thread.id}{bcolors.ENDC}")
         return thread
 
-    def add_message(self, thread, content):
+    async def add_message(self, thread, content):
         """
         Add a message to a chat/Thread.
         """
-        thread_message = self.client.beta.threads.messages.create(
+        thread_message = await self.client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=content,
@@ -73,48 +107,29 @@ class GPT_Assistant_API:
         messages = self.client.beta.threads.messages.list(thread_id=thread.id)
         return messages
 
-    def run_chat(self, thread, assistant=None):
+    async def get_answer(self, thread, assistant=None):
         """
         Run the thread with the assistant.
         """
         if not assistant:
             assistant = self.assistant
-        run = self.client.beta.threads.runs.create(
+        run = await self.client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=assistant.id,
         )
-        return run
+        # wait for the run to complete
+        while True:
+            runInfo = await client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+            if runInfo.completed_at:
+                # elapsed = runInfo.completed_at - runInfo.created_at
+                # elapsed = time.strftime("%H:%M:%S", time.gmtime(elapsed))
+                print(f"Run completed")
+                break
+            print("Waiting 1sec...")
+            time.sleep(1)
 
-
-async def assistant_api_interaction(websocket, assistant_id, thread_id, name, description, instructions, tools, model, content):
-    print(f"name: {name}, description: {description}, instructions: {instructions}, tools: {tools}, model: {model}, content: {content}")
-    # Instantiate the assistant API class
-    api = GPT_Assistant_API(client, name, description,
-                            instructions, tools, model)
-
-    # Create or retrieve an assistant based on assistant_id
-    assistant = api.get_assistant(
-        assistant_id) if assistant_id else api.assistant
-
-    # Retrieve or start a new chat based on thread_id
-    thread = api.get_chat(thread_id) if thread_id else api.start_new_chat()
-
-    # Add the message to the thread and run the chat
-    api.add_message(thread, content)
-    response = api.run_chat(thread, assistant)
-
-    # Run the thread with the assistant with the new message
-    response = await api.run_chat(thread, assistant)
-    await websocket.send_json({"message": "Processing..."})
-
-    # Retrieve the latest message from the chat history
-    history = await api.get_messages_in_chat(thread)
-    last_message = history.data[-1] if history.data else None
-
-    # Send the latest message to the front-end
-    if last_message:
-        await websocket.send_json({
-            "role": last_message.role,
-            "content": last_message.content[0].text.value,
-            "thread_id": thread.id
-        })
+        print("All done...")
+        # Get messages from the thread
+        messages = await client.beta.threads.messages.list(thread.id)
+        message_content = messages.data[0].content[0].text.value
+        return message_content

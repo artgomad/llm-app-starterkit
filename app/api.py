@@ -19,7 +19,7 @@ from app.utils.functions.update_customer_profile import update_customer_profile
 from app.utils.functions.choose_best_prompt import choose_best_prompt
 from app.utils.functions.google_sheets_calculator import google_sheets_calculator
 from app.utils.functions.google_sheets_calculator_v2 import google_sheets_calculator_v2, Config
-from app.agents.gpt_assistant_basic import assistant_api_interaction
+from app.agents.gpt_assistant_basic import GPT_Assistant_API, assistant_api_interaction
 
 
 load_dotenv()
@@ -27,6 +27,7 @@ load_dotenv()
 app = FastAPI()
 exit_flag = False
 openai.api_key = os.environ.get('OPENAI_API_KEY')
+client = openai.OpenAI()
 
 # Define which front-end origins are allowed to make requests
 origins = [
@@ -258,6 +259,7 @@ async def assistantAPI(websocket: WebSocket):
 
         # 00 EXTRACT ALL API PARAMETERS
         payload = json.loads(data)
+        # assistant and thread id need to be passed from the front-end to maintain the connection to the same assistant
         assistant_id_to_use = payload.get('assistant_id_to_use', None)
         thread_id_to_use = payload.get('thread_id_to_use', None)
         name = payload.get('name', 'Default Assistant')
@@ -268,17 +270,18 @@ async def assistantAPI(websocket: WebSocket):
         content = payload.get('content', '')
 
         try:
-            await assistant_api_interaction(
-                websocket=websocket,
-                assistant_id=assistant_id_to_use,
-                thread_id=thread_id_to_use,
-                name=name,
-                description=description,
-                instructions=instructions,
-                tools=tools,
-                model=model,
-                content=content
-            )
+            api = GPT_Assistant_API(
+                client, name, description, instructions, tools, model)
+            assistant, thread = await api.get_assistant_and_thread(assistant_id_to_use, thread_id_to_use)
+
+            await api.add_message_to_thread(thread, content)
+            response = await api.get_answer(thread, assistant)
+            print(response)
+
+            await websocket.send_json({
+                "data":  response,
+            })
+
         except Exception as e:
             traceback.print_exc()
             error_message = str(e)
