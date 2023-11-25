@@ -280,6 +280,8 @@ async def assistantAPI(websocket: WebSocket):
 
             await websocket.send_json({
                 "data":  response,
+                "assistant_id": assistant.id,
+                "thread_id": thread.id
             })
 
         except Exception as e:
