@@ -19,7 +19,7 @@ from app.utils.functions.update_customer_profile import update_customer_profile
 from app.utils.functions.choose_best_prompt import choose_best_prompt
 from app.utils.functions.google_sheets_calculator import google_sheets_calculator
 from app.utils.functions.google_sheets_calculator_v2 import google_sheets_calculator_v2, Config
-from app.agents.gpt_assistant_basic import GPT_Assistant_API, assistant_api_interaction
+from app.agents.gpt_assistant_basic import GPT_Assistant_API
 
 
 load_dotenv()
