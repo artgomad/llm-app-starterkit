@@ -132,7 +132,8 @@ class GPT_Assistant_API:
                 thread_id=thread.id, run_id=run.id)
 
             print(runInfo.status)
-            print(run_steps[-1])
+            print(run_steps)
+
             if runInfo.completed_at:
                 print(f"Run completed")
                 break
