@@ -153,8 +153,7 @@ class GPT_Assistant_API:
                         # Parse the JSON string into a dictionary
                         arguments_dict = json.loads(function_arguments)
                         # Call the function using its name as a string and passing the arguments
-                        output = getattr(globals()[function_name], function_name)(
-                            **arguments_dict)
+                        output = globals()[function_name](**arguments_dict)
 
                         print(output)
 
