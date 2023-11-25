@@ -134,4 +134,6 @@ class GPT_Assistant_API:
         # Get messages from the thread
         messages = self.client.beta.threads.messages.list(thread.id)
         message_content = messages.data[0].content[0].text.value
+        print(message_content)
+
         return message_content
