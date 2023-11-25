@@ -272,9 +272,10 @@ async def assistantAPI(websocket: WebSocket):
         try:
             api = GPT_Assistant_API(
                 client, name, description, instructions, tools, model)
-            assistant, thread = await api.get_assistant_and_thread(assistant_id_to_use, thread_id_to_use)
+            assistant, thread = api.get_assistant_and_thread(
+                assistant_id_to_use, thread_id_to_use)
 
-            await api.add_message_to_thread(thread, content)
+            api.add_message_to_thread(thread, content)
             response = await api.get_answer(thread, assistant)
             print(response)
 

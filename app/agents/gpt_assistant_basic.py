@@ -33,25 +33,26 @@ class GPT_Assistant_API:
         self.tools = tools
         self.model = model
 
-    async def get_assistant_and_thread(self, assistant_id=None, thread_id=None):
+    def get_assistant_and_thread(self, assistant_id=None, thread_id=None):
         # Perform async operations here to initialize assistant and thread
         if assistant_id:
-            self.assistant = self.get_assistant(assistant_id)
+            assistant = self.get_assistant(assistant_id)
         else:
-            self.assistant = await self.create_assistant(self.name, self.description, self.instructions, self.tools, self.model)
+            assistant = self.create_assistant(
+                self.name, self.description, self.instructions, self.tools, self.model)
 
         if thread_id:
-            self.thread = self.get_thread(thread_id)
+            thread = self.get_thread(thread_id)
         else:
-            self.thread = await self.start_new_thread()
+            thread = self.start_new_thread()
 
-        return self
+        return assistant, thread
 
-    async def create_assistant(self, name, description, instructions, tools, model):
+    def create_assistant(self, name, description, instructions, tools, model):
         """
         Create a new assistant with the given parameters.
         """
-        assistant = await self.client.beta.assistants.create(
+        assistant = self.client.beta.assistants.create(
             name=name,
             description=description,
             instructions=instructions,
@@ -71,11 +72,11 @@ class GPT_Assistant_API:
               f"{bcolors.HEADER}{assistant.id}{bcolors.ENDC}")
         return assistant
 
-    async def start_new_thread(self):
+    def start_new_thread(self):
         """
         Start a new chat with a user.
         """
-        empty_thread = await self.client.beta.threads.create()
+        empty_thread = self.client.beta.threads.create()
         print("Created thread with id:",
               f"{bcolors.HEADER}{empty_thread.id}{bcolors.ENDC}")
         return empty_thread
@@ -89,11 +90,11 @@ class GPT_Assistant_API:
               f"{bcolors.HEADER}{thread.id}{bcolors.ENDC}")
         return thread
 
-    async def add_message(self, thread, content):
+    def add_message(self, thread, content):
         """
         Add a message to a chat/Thread.
         """
-        thread_message = await self.client.beta.threads.messages.create(
+        thread_message = self.client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=content,
