@@ -128,7 +128,11 @@ class GPT_Assistant_API:
 
             runInfo = self.client.beta.threads.runs.retrieve(
                 thread_id=thread.id, run_id=run.id)
+            run_steps = self.client.beta.threads.runs.steps.list(
+                thread_id=thread.id, run_id=run.id)
+
             print(runInfo.status)
+            print(run_steps[-1])
             if runInfo.completed_at:
                 print(f"Run completed")
                 break
