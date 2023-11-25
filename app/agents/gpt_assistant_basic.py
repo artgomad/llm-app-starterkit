@@ -133,7 +133,10 @@ class GPT_Assistant_API:
         print("All done...")
         # Get messages from the thread
         messages = self.client.beta.threads.messages.list(thread.id)
-        message_content = messages.data[0].content[0].text.value
-        print(message_content)
+        message_content = messages.data[0].content[0]
+
+        print(messages.data[0])
+        print(message_content,
+              f"{bcolors.OKGREEN}{thread.id}{bcolors.ENDC}")
 
         return message_content

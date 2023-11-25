@@ -277,7 +277,6 @@ async def assistantAPI(websocket: WebSocket):
 
             api.add_message(thread, content)
             response = api.get_answer(thread, assistant)
-            print(response)
 
             await websocket.send_json({
                 "data":  response,
