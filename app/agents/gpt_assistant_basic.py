@@ -87,6 +87,7 @@ class GPT_Assistant_API:
 
 
 async def assistant_api_interaction(websocket, assistant_id, thread_id, name, description, instructions, tools, model, content):
+    print(f"name: {name}, description: {description}, instructions: {instructions}, tools: {tools}, model: {model}, content: {content}")
     # Instantiate the assistant API class
     api = GPT_Assistant_API(client, name, description,
                             instructions, tools, model)
