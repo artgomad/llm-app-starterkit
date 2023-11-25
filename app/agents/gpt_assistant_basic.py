@@ -134,15 +134,19 @@ class GPT_Assistant_API:
                 thread_id=thread.id, run_id=run.id)
             print(run_steps)
 
-            function_tool_call = run_steps.data[0].step_details.tool_calls[0]
-            print(function_tool_call)
+            if run_steps.data[0]:
+                if run_steps.data[0].step_details.tool_calls[0]:
+                    function_tool_call = run_steps.data[0].step_details.tool_calls[0]
+                    print(function_tool_call)
 
-            function_arguments = function_tool_call.function.arguments
-            function_name = function_tool_call.function.name
+                    function_arguments = function_tool_call.function.arguments
+                    function_name = function_tool_call.function.name
 
-            # Print out the variables
-            print("Function Arguments:", function_arguments)
-            print("Function Name:", function_name)
+                    # Print out the variables
+                    print(
+                        f"{bcolors.OKCYAN}Function Arguments: {function_arguments}{bcolors.ENDC}")
+                    print(
+                        f"{bcolors.OKCYAN}Function Name: {function_name}{bcolors.ENDC}")
 
             if runInfo.completed_at:
                 print(f"Run completed")
