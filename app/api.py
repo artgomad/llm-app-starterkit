@@ -269,8 +269,6 @@ async def assistantAPI(websocket: WebSocket):
         model = payload.get('model', "gpt-3.5-turbo-1106")
         content = payload.get('content', '')
 
-        print(tools)
-
         try:
             api = GPT_Assistant_API(
                 client, name, description, instructions, tools, model)
