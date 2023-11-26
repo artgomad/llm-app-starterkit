@@ -223,7 +223,7 @@ class GPT_Assistant_API:
                     "message": "Products found, Writting answer...",
                     "data": {
                         'role': "assistant",
-                        'content': "",
+                        'content': " ",
                         'metadata': output,
                         'message_id': run.id
                     },
