@@ -42,7 +42,7 @@ class GPT_Assistant_API:
         This synchronous method will call the asynchronous method to send
         WebSocket messages using the asyncio event loop.
         """
-        asyncio.run(self.send_message_async(message))
+        asyncio.run(self.send_websocket_message_async(message))
 
     async def send_websocket_message_async(self, message):
         """
