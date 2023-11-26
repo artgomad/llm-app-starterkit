@@ -120,33 +120,32 @@ class GPT_Assistant_API:
             assistant_id=assistant.id,
         )
 
-        # wait for the run to complete
         start_time = time.time()
-        while True:
+
+        # Loop until the run status is either "completed" or "requires_action"
+        while run.status == "in_progress" or run.status == "queued":
             current_time = time.time()
             elapsed_time = current_time - start_time
 
-            runInfo = self.client.beta.threads.runs.retrieve(
+            run = self.client.beta.threads.runs.retrieve(
                 thread_id=thread.id, run_id=run.id)
-            print("Run status: ", runInfo.status)
+            print("Run status: ", run.status)
 
             run_steps = self.client.beta.threads.runs.steps.list(
                 thread_id=thread.id, run_id=run.id)
-            print(run_steps)
 
-            if run_steps.data:
-                # Check is the step is a tool call
-                if hasattr(run_steps.data[0].step_details, 'tool_calls'):
-                    function_tool_call = run_steps.data[0].step_details.tool_calls[0]
-                    output = self.call_function(
-                        thread, run, function_tool_call)
-
-            if runInfo.completed_at:
+            # Exit the loop if the status is completed or times out
+            if run.status == "completed":
                 print(f"Run completed")
                 break
+
             elif elapsed_time > 30:  # Check if more than 10 seconds have elapsed
                 print("Timeout: The run did not complete in 30 seconds.")
                 break
+
+            elif run.status == "requires_action":
+                tool_call = run.required_action.submit_tool_outputs.tool_calls[0]
+                output = self.call_function(thread, run, tool_call)
 
             print("Waiting 1sec...")
             time.sleep(1)
@@ -167,19 +166,19 @@ class GPT_Assistant_API:
 
         return message_object
 
-    def call_function(self, thread, run, function_tool_call):
+    def call_function(self, thread, run, tool_call):
 
-        function_arguments = function_tool_call.function.arguments
-        function_name = function_tool_call.function.name
-        tool_call_id = function_tool_call.id
+        function_arguments = tool_call.function.arguments
+        function_name = tool_call.function.name
+        tool_call_id = tool_call.id
         output = None
 
         print(
             f"{bcolors.HEADER}Tool call ID: {tool_call_id}{bcolors.ENDC}")
         print(
-            f"{bcolors.OKCYAN}Function Arguments: {function_arguments}{bcolors.ENDC}")
-        print(
             f"{bcolors.OKCYAN}Function Name: {function_name}{bcolors.ENDC}")
+        print(
+            f"{bcolors.OKGREEN}Function Arguments: {function_arguments}{bcolors.ENDC}")
 
         if function_name and function_arguments:
             # Parse the JSON string into a dictionary
@@ -189,9 +188,10 @@ class GPT_Assistant_API:
             )[function_name](**arguments_dict)
 
             print("First item retrieved = ", output[0])
-            print(type(output))
+            # print(type(output))
             # print("output string = ", output_str)
 
+        if output_str:
             run = self.client.beta.threads.runs.submit_tool_outputs(
                 thread_id=thread.id,
                 run_id=run.id,
