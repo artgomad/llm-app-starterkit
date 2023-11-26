@@ -133,7 +133,7 @@ class GPT_Assistant_API:
 
             run_steps = self.client.beta.threads.runs.steps.list(
                 thread_id=thread.id, run_id=run.id)
-            # print(run_steps)
+            print(run_steps)
 
             if run_steps.data:
                 if run_steps.data[0].step_details.tool_calls:
@@ -156,6 +156,16 @@ class GPT_Assistant_API:
                         output = globals()[function_name](**arguments_dict)
 
                         print(output)
+                        run = self.client.beta.threads.runs.submit_tool_outputs(
+                            thread_id=thread.id,
+                            run_id=run.id,
+                            tool_outputs=[
+                                {
+                                    "tool_call_id": "call_abc123",
+                                    "output": output
+                                }
+                            ]
+                        )
 
             if runInfo.completed_at:
                 print(f"Run completed")
