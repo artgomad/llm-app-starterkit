@@ -276,6 +276,11 @@ async def assistantAPI(websocket: WebSocket):
                 assistant_id_to_use, thread_id_to_use)
 
             api.add_message(thread, content)
+
+            # Call the synchronous get_answer_sync method within an executor
+            loop = asyncio.get_running_loop()
+            response = await loop.run_in_executor(None, api.get_answer, thread, assistant)
+
             response = api.get_answer(thread, assistant)
 
             await websocket.send_json({
