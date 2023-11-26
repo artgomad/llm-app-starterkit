@@ -139,41 +139,8 @@ class GPT_Assistant_API:
                 # Check is the step is a tool call
                 if hasattr(run_steps.data[0].step_details, 'tool_calls'):
                     function_tool_call = run_steps.data[0].step_details.tool_calls[0]
-                    # print(function_tool_call)
-
-                    function_arguments = function_tool_call.function.arguments
-                    function_name = function_tool_call.function.name
-                    tool_call_id = function_tool_call.id
-
-                    # Print out the variables
-                    print(
-                        f"{bcolors.HEADER}Tool call ID: {tool_call_id}{bcolors.ENDC}")
-                    print(
-                        f"{bcolors.OKCYAN}Function Arguments: {function_arguments}{bcolors.ENDC}")
-                    print(
-                        f"{bcolors.OKCYAN}Function Name: {function_name}{bcolors.ENDC}")
-
-                    if function_name and function_arguments:
-                        # Parse the JSON string into a dictionary
-                        arguments_dict = json.loads(function_arguments)
-                        # Call the function using its name as a string and passing the arguments
-                        output_str, output = globals(
-                        )[function_name](**arguments_dict)
-
-                        print("output = ", output[0])
-                        print(type(output))
-                        # print("output string = ", output_str)
-
-                        run = self.client.beta.threads.runs.submit_tool_outputs(
-                            thread_id=thread.id,
-                            run_id=run.id,
-                            tool_outputs=[
-                                {
-                                    "tool_call_id": tool_call_id,
-                                    "output": output_str
-                                }
-                            ]
-                        )
+                    output = self.call_function(
+                        thread, run, function_tool_call)
 
             if runInfo.completed_at:
                 print(f"Run completed")
@@ -186,10 +153,9 @@ class GPT_Assistant_API:
             time.sleep(1)
 
         print("All done...")
+
         # Get messages from the thread
         messages = self.client.beta.threads.messages.list(thread.id)
-        # print(messages.data[0])
-
         message_content = messages.data[0].content[0].text.value
 
         message_object = {
@@ -198,7 +164,42 @@ class GPT_Assistant_API:
             'metadata': output if output else None
         }
 
-        # print(message_object)
         print(f"{bcolors.OKGREEN}{message_content}{bcolors.ENDC}")
 
         return message_object
+
+    def call_function(self, thread, run, function_tool_call):
+
+        function_arguments = function_tool_call.function.arguments
+        function_name = function_tool_call.function.name
+        tool_call_id = function_tool_call.id
+
+        print(
+            f"{bcolors.HEADER}Tool call ID: {tool_call_id}{bcolors.ENDC}")
+        print(
+            f"{bcolors.OKCYAN}Function Arguments: {function_arguments}{bcolors.ENDC}")
+        print(
+            f"{bcolors.OKCYAN}Function Name: {function_name}{bcolors.ENDC}")
+
+        if function_name and function_arguments:
+            # Parse the JSON string into a dictionary
+            arguments_dict = json.loads(function_arguments)
+            # Call the function using its name as a string and passing the arguments
+            output_str, output = globals(
+            )[function_name](**arguments_dict)
+
+            print("output = ", output[0])
+            print(type(output))
+            # print("output string = ", output_str)
+
+            run = self.client.beta.threads.runs.submit_tool_outputs(
+                thread_id=thread.id,
+                run_id=run.id,
+                tool_outputs=[
+                    {
+                        "tool_call_id": tool_call_id,
+                        "output": output_str
+                    }
+                ]
+            )
+        return output if output else None
