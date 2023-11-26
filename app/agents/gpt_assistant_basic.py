@@ -111,7 +111,7 @@ class GPT_Assistant_API:
         return messages
 
     def get_answer(self, thread, assistant=None):
-
+        output = None
         if not assistant:
             assistant = self.assistant
 
@@ -156,7 +156,7 @@ class GPT_Assistant_API:
                 message_object = {
                     'role': messages.data[0].role,
                     'content': message_content,
-                    'metadata': output if output else None
+                    'metadata': output
                 }
 
                 print(f"{bcolors.OKGREEN}{message_content}{bcolors.ENDC}")
