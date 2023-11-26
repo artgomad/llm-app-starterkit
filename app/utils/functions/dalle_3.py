@@ -16,6 +16,7 @@ def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
         quality="standard",
         n=1
     )
+    print(response)
 
     image_url = response.data[0].url
 
