@@ -277,11 +277,11 @@ async def assistantAPI(websocket: WebSocket):
 
             api.add_message(thread, content)
 
-            # Call the synchronous get_answer_sync method within an executor
+            # Call the synchronous get_answer method within an executor
+            # This maintains the synchronous nature required by the OpenAI SDK
+            # while still being able to communicate asynchronously over WebSockets
             loop = asyncio.get_running_loop()
             response = await loop.run_in_executor(None, api.get_answer, thread, assistant)
-
-            response = api.get_answer(thread, assistant)
 
             await websocket.send_json({
                 "data":  response,
