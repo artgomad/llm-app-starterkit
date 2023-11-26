@@ -24,7 +24,10 @@ def grundfos_elasticsearch(graphql_query):
         if response.status_code == 200:
             output_str = json.dumps(response.json())
             print(response.json())
-            metadata = response.json().search.items
+            print(response.json()['data'])
+            print(response.json()['data']['search'])
+            print(response.json()['data']['search']['items'])
+            metadata = response.json()['data']['search']['items']
             return output_str, metadata
 
         else:
