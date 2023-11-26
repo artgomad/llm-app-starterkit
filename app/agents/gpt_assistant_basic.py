@@ -155,7 +155,9 @@ class GPT_Assistant_API:
         # Get messages from the thread
         messages = self.client.beta.threads.messages.list(thread.id)
         print(messages)
-        print(messages[-1])
+        message_dict = json.loads(messages.model_dump_json())
+        print(message_dict['data'][0]['content'][0]["text"]["value"])
+        # print(messages[-1])
         message_content = messages.data[0].content[0].text.value
 
         message_object = {
@@ -194,6 +196,7 @@ class GPT_Assistant_API:
             # print("output string = ", output_str)
 
         if output_str:
+            print("appending fucntion output")
             run = self.client.beta.threads.runs.submit_tool_outputs(
                 thread_id=thread.id,
                 run_id=run.id,
