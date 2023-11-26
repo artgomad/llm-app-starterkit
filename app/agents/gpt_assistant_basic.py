@@ -144,8 +144,8 @@ class GPT_Assistant_API:
             if runInfo.completed_at:
                 print(f"Run completed")
                 break
-            elif elapsed_time > 10:  # Check if more than 10 seconds have elapsed
-                print("Timeout: The run did not complete in 10 seconds.")
+            elif elapsed_time > 30:  # Check if more than 10 seconds have elapsed
+                print("Timeout: The run did not complete in 30 seconds.")
                 break
 
             print("Waiting 1sec...")
@@ -188,7 +188,7 @@ class GPT_Assistant_API:
             output_str, output = globals(
             )[function_name](**arguments_dict)
 
-            print("output = ", output[0])
+            print("First item retrieved = ", output[0])
             print(type(output))
             # print("output string = ", output_str)
 
