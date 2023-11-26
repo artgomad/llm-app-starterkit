@@ -5,6 +5,7 @@ import time
 import json
 import asyncio
 from app.utils.functions.grundfos_elasticsearch import grundfos_elasticsearch
+from app.utils.functions.dalle_3 import generate_image
 
 load_dotenv()  # Load .env file
 
@@ -215,7 +216,8 @@ class GPT_Assistant_API:
             output_str, output = globals(
             )[function_name](**arguments_dict)
 
-            print("First item retrieved = ", output[0])
+            if output:
+                print("First item retrieved = ", output[0])
 
             # Pass the function output to frontend when retrieved
             self.send_websocket_message(
