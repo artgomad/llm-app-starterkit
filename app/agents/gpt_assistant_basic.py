@@ -3,6 +3,7 @@ from openai import OpenAI
 from fastapi import WebSocket
 import time
 import json
+import asyncio
 from app.utils.functions.grundfos_elasticsearch import grundfos_elasticsearch
 
 load_dotenv()  # Load .env file
@@ -27,13 +28,27 @@ class GPT_Assistant_API:
     chat threads with an assistant.
     """
 
-    def __init__(self, client, name, description, instructions, tools=[], model="gpt-3.5-turbo-1106"):
+    def __init__(self, client, websocket, name, description, instructions, tools=[], model="gpt-3.5-turbo-1106"):
         self.client = client
+        self.websocket = websocket
         self.name = name
         self.description = description
         self.instructions = instructions
         self.tools = tools
         self.model = model
+
+    def send_websocket_message(self, message):
+        """
+        This synchronous method will call the asynchronous method to send
+        WebSocket messages using the asyncio event loop.
+        """
+        asyncio.run(self.send_message_async(message))
+
+    async def send_websocket_message_async(self, message):
+        """
+        This asynchronous method will actually send the WebSocket message.
+        """
+        await self.websocket.send_json(message)
 
     def get_assistant_and_thread(self, assistant_id=None, thread_id=None):
         # Perform async operations here to initialize assistant and thread
@@ -140,11 +155,16 @@ class GPT_Assistant_API:
                 print(step_details)
 
             if run.status == "requires_action":
+                self.send_websocket_message(
+                    {"message": "Searching products..."})
+
                 tool_call = run.required_action.submit_tool_outputs.tool_calls[0]
                 output = self.call_function(thread, run, tool_call)
 
             # Exit the loop if the status is completed or times out
             if run.status == "completed":
+                self.send_websocket_message(
+                    {"message": "Products found, Writting answer..."})
                 print(f"Run completed")
                 # Get messages from the thread
                 messages = self.client.beta.threads.messages.list(thread.id)
@@ -163,7 +183,7 @@ class GPT_Assistant_API:
 
                 return message_object
 
-            elif elapsed_time > 30:  # Check if more than 10 seconds have elapsed
+            elif elapsed_time > 60:  # Check if more than 10 seconds have elapsed
                 print("Timeout: The run did not complete in 30 seconds.")
                 return None
 
