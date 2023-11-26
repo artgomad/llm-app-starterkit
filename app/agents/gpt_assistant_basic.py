@@ -157,13 +157,12 @@ class GPT_Assistant_API:
                         # Parse the JSON string into a dictionary
                         arguments_dict = json.loads(function_arguments)
                         # Call the function using its name as a string and passing the arguments
-                        output = globals()[function_name](**arguments_dict)
-                        output_str = json.dumps(output)
+                        output_str, output = globals(
+                        )[function_name](**arguments_dict)
 
-                        print("output = ", output)
+                        print("output = ", output[0])
                         print(type(output))
-                        print("output string = ", output_str)
-                        print(type(output_str))
+                        # print("output string = ", output_str)
 
                         run = self.client.beta.threads.runs.submit_tool_outputs(
                             thread_id=thread.id,
@@ -196,7 +195,7 @@ class GPT_Assistant_API:
         message_object = {
             'role': messages.data[0].role,
             'content': message_content,
-            'metadata': [output] if output else None
+            'metadata': output if output else None
         }
 
         # print(message_object)

@@ -22,16 +22,17 @@ def grundfos_elasticsearch(graphql_query):
 
         # Checking if the request was successful
         if response.status_code == 200:
-            # Do something with the response, for example, print the text of the response
-            # print(response.text)
-            return response.json()
+            output_str = json.dumps(response.json())
+            metadata = response.json().data.search.items
+            return output_str, metadata
+
         else:
             # Handle request errors
             print(f"Request failed with status code: {response.status_code}")
             print(f"Response Body: {response.text}")
-            return None
+            return None, None
 
     except requests.exceptions.RequestException as e:
         # Catch any exceptions that requests might throw
         print(f"An error occurred: {e}")
-        return None
+        return None, None
