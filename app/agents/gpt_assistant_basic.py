@@ -111,18 +111,17 @@ class GPT_Assistant_API:
         return messages
 
     def get_answer(self, thread, assistant=None):
-        """
-        Run the thread with the assistant.
-        """
+
         if not assistant:
             assistant = self.assistant
+
         run = self.client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=assistant.id,
         )
-        start_time = time.time()
 
         # wait for the run to complete
+        start_time = time.time()
         while True:
             current_time = time.time()
             elapsed_time = current_time - start_time
@@ -173,6 +172,7 @@ class GPT_Assistant_API:
         function_arguments = function_tool_call.function.arguments
         function_name = function_tool_call.function.name
         tool_call_id = function_tool_call.id
+        output = None
 
         print(
             f"{bcolors.HEADER}Tool call ID: {tool_call_id}{bcolors.ENDC}")
@@ -202,4 +202,4 @@ class GPT_Assistant_API:
                     }
                 ]
             )
-        return output if output else None
+        return output
