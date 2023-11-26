@@ -9,6 +9,8 @@ client = openai.OpenAI()
 
 def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
 
+    print("Starting image generation")
+
     response = client.images.generate(
         model="dall-e-3",
         prompt=prompt,
@@ -24,4 +26,4 @@ def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
     im.save("temp.png")
     print(image_url)
 
-    return image_url
+    return image_url, None
