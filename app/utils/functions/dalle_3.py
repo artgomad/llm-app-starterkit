@@ -26,4 +26,4 @@ def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
     im.save("temp.png")
     print(image_url)
 
-    return image_url, None
+    return image_url, [image_url]
