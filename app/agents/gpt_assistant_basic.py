@@ -142,8 +142,11 @@ class GPT_Assistant_API:
 
                     function_arguments = function_tool_call.function.arguments
                     function_name = function_tool_call.function.name
+                    tool_call_id = function_tool_call.id
 
                     # Print out the variables
+                    print(
+                        f"{bcolors.HEADER}Tool call ID: {tool_call_id}{bcolors.ENDC}")
                     print(
                         f"{bcolors.OKCYAN}Function Arguments: {function_arguments}{bcolors.ENDC}")
                     print(
@@ -154,15 +157,20 @@ class GPT_Assistant_API:
                         arguments_dict = json.loads(function_arguments)
                         # Call the function using its name as a string and passing the arguments
                         output = globals()[function_name](**arguments_dict)
+                        output_str = json.dumps(output)
 
-                        print(output)
+                        print("output = ", output)
+                        print(type(output))
+                        print("output string = ", output_str)
+                        print(type(output_str))
+
                         run = self.client.beta.threads.runs.submit_tool_outputs(
                             thread_id=thread.id,
                             run_id=run.id,
                             tool_outputs=[
                                 {
-                                    "tool_call_id": "call_abc123",
-                                    "output": output
+                                    "tool_call_id": tool_call_id,
+                                    "output": output_str
                                 }
                             ]
                         )
@@ -187,7 +195,7 @@ class GPT_Assistant_API:
         message_object = {
             'role': messages.data[0].role,
             'content': message_content,
-            'metadata': []
+            'metadata': [output] if output else None
         }
 
         # print(message_object)
