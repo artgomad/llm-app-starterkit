@@ -134,6 +134,10 @@ class GPT_Assistant_API:
             run_steps = self.client.beta.threads.runs.steps.list(
                 thread_id=thread.id, run_id=run.id)
 
+            if run_steps.data:
+                step_details = run_steps.data[0].step_details
+                print(step_details)
+
             # Exit the loop if the status is completed or times out
             if run.status == "completed":
                 print(f"Run completed")
@@ -155,8 +159,7 @@ class GPT_Assistant_API:
         # Get messages from the thread
         messages = self.client.beta.threads.messages.list(thread.id)
         print(messages)
-        message_dict = json.loads(messages.model_dump_json())
-        print(message_dict['data'][0]['content'][0]["text"]["value"])
+
         # print(messages[-1])
         message_content = messages.data[0].content[0].text.value
 
@@ -192,11 +195,8 @@ class GPT_Assistant_API:
             )[function_name](**arguments_dict)
 
             print("First item retrieved = ", output[0])
-            # print(type(output))
-            # print("output string = ", output_str)
 
-        if output_str:
-            print("appending fucntion output")
+            # Pass function output into the run
             run = self.client.beta.threads.runs.submit_tool_outputs(
                 thread_id=thread.id,
                 run_id=run.id,
