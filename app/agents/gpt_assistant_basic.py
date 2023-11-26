@@ -163,8 +163,6 @@ class GPT_Assistant_API:
 
             # Exit the loop if the status is completed or times out
             if run.status == "completed":
-                self.send_websocket_message(
-                    {"message": "Products found, Writting answer..."})
                 print(f"Run completed")
                 # Get messages from the thread
                 messages = self.client.beta.threads.messages.list(thread.id)
@@ -176,10 +174,16 @@ class GPT_Assistant_API:
                 message_object = {
                     'role': messages.data[0].role,
                     'content': message_content,
-                    'metadata': output
+                    'metadata': output,
+                    'message_id': run.id
                 }
 
-                print(f"{bcolors.OKGREEN}{message_content}{bcolors.ENDC}")
+                self.send_websocket_message(
+                    {
+                        "data": message_object,
+                        "assistant_id": assistant.id,
+                        "thread_id": thread.id
+                    })
 
                 return message_object
 
@@ -212,6 +216,18 @@ class GPT_Assistant_API:
             )[function_name](**arguments_dict)
 
             print("First item retrieved = ", output[0])
+
+            # Pass the function output to frontend when retrieved
+            self.send_websocket_message(
+                {
+                    "message": "Products found, Writting answer...",
+                    "data": {
+                        'role': "assistant",
+                        'content': "",
+                        'metadata': output,
+                        'message_id': run.id
+                    },
+                })
 
             # Pass function output into the run
             run = self.client.beta.threads.runs.submit_tool_outputs(
