@@ -123,13 +123,14 @@ class GPT_Assistant_API:
         start_time = time.time()
 
         # Loop until the run status is either "completed" or "requires_action"
-        while run.status == "in_progress" or run.status == "queued":
+        while run.status:
             current_time = time.time()
             elapsed_time = current_time - start_time
 
             run = self.client.beta.threads.runs.retrieve(
                 thread_id=thread.id, run_id=run.id)
-            print("Run status: ", run.status)
+
+            print(f"{bcolors.WARNING}Run status: {run.status}{bcolors.ENDC}")
 
             run_steps = self.client.beta.threads.runs.steps.list(
                 thread_id=thread.id, run_id=run.id)
@@ -138,40 +139,36 @@ class GPT_Assistant_API:
                 step_details = run_steps.data[0].step_details
                 print(step_details)
 
-            # Exit the loop if the status is completed or times out
-            if run.status == "completed":
-                print(f"Run completed")
-                break
-
-            elif elapsed_time > 30:  # Check if more than 10 seconds have elapsed
-                print("Timeout: The run did not complete in 30 seconds.")
-                break
-
-            elif run.status == "requires_action":
+            if run.status == "requires_action":
                 tool_call = run.required_action.submit_tool_outputs.tool_calls[0]
                 output = self.call_function(thread, run, tool_call)
 
+            # Exit the loop if the status is completed or times out
+            if run.status == "completed":
+                print(f"Run completed")
+                # Get messages from the thread
+                messages = self.client.beta.threads.messages.list(thread.id)
+                print(messages)
+
+                message_content = messages.data[0].content[0].text.value
+                print(f"{bcolors.OKGREEN}{message_content}{bcolors.ENDC}")
+
+                message_object = {
+                    'role': messages.data[0].role,
+                    'content': message_content,
+                    'metadata': output if output else None
+                }
+
+                print(f"{bcolors.OKGREEN}{message_content}{bcolors.ENDC}")
+
+                return message_object
+
+            elif elapsed_time > 30:  # Check if more than 10 seconds have elapsed
+                print("Timeout: The run did not complete in 30 seconds.")
+                return None
+
             print("Waiting 1sec...")
             time.sleep(1)
-
-        print("All done...")
-
-        # Get messages from the thread
-        messages = self.client.beta.threads.messages.list(thread.id)
-        print(messages)
-
-        # print(messages[-1])
-        message_content = messages.data[0].content[0].text.value
-
-        message_object = {
-            'role': messages.data[0].role,
-            'content': message_content,
-            'metadata': output if output else None
-        }
-
-        print(f"{bcolors.OKGREEN}{message_content}{bcolors.ENDC}")
-
-        return message_object
 
     def call_function(self, thread, run, tool_call):
 
