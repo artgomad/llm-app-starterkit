@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from openai import openai
+import openai
 from PIL import Image
 import requests
 
