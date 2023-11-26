@@ -7,7 +7,7 @@ load_dotenv()  # Load .env file
 client = openai.OpenAI()
 
 
-def generate_image(client, prompt, n: int = 1, size: str = "1024x1024"):
+def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
 
     response = client.images.generate(
         model="dall-e-3",
