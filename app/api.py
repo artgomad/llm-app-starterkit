@@ -364,7 +364,7 @@ async def completion_with_streaming(websocket: WebSocket):
             for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
                     await websocket.send_json({
-                        "chuck":  chunk.choices[0].delta.content,
+                        "chunk":  chunk.choices[0].delta.content,
                     })
 
         except Exception as e:
