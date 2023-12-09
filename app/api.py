@@ -309,7 +309,7 @@ async def dalle3(websocket: WebSocket):
 
     while True:
         data = await websocket.receive_text()
-        await websocket.send_json({"message": "Let me think..."})
+        await websocket.send_json({"message": "Request recieved..."})
 
         # 00 EXTRACT ALL API PARAMETERS
         payload = json.loads(data)
@@ -319,7 +319,7 @@ async def dalle3(websocket: WebSocket):
 
         try:
             image_url, images_list = generate_image(
-                prompt=image_description, n=1, size="1024")
+                prompt=image_description, n=1, size=size)
 
             await websocket.send_json({
                 "generated_image":  image_url,

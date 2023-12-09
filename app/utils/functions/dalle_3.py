@@ -10,6 +10,7 @@ client = openai.OpenAI()
 def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
 
     print("Starting image generation")
+    print("Generate ", n, " image(s) of: ", prompt, " with size str", "px")
 
     response = client.images.generate(
         model="dall-e-3",
