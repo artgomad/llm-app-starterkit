@@ -315,7 +315,7 @@ async def dalle3(websocket: WebSocket):
         payload = json.loads(data)
 
         image_description = payload.get('image_description', None)
-        size = payload.get('size', None)
+        size = payload.get('size', "1024x1024")
 
         try:
             image_url, images_list = generate_image(
