@@ -304,7 +304,7 @@ async def assistantAPI(websocket: WebSocket):
 
 
 @app.websocket("/dalle3")
-async def dalee3(websocket: WebSocket):
+async def dalle3(websocket: WebSocket):
     await websocket.accept()
 
     while True:
@@ -324,6 +324,48 @@ async def dalee3(websocket: WebSocket):
             await websocket.send_json({
                 "generated_image":  image_url,
             })
+
+        except Exception as e:
+            traceback.print_exc()
+            error_message = str(e)
+            tb_str = traceback.format_exc()
+            tb_lines = tb_str.split('\n')
+            last_5_lines_tb = '\n'.join(tb_lines[-6:])
+            print("ERROR: ", last_5_lines_tb)
+            await websocket.send_json({
+                "error": error_message,
+                "error_traceback": last_5_lines_tb,
+            })
+
+
+@app.websocket("/completion_with_streaming")
+async def completion_with_streaming(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_json({"message": "Let me think..."})
+
+        # 00 EXTRACT ALL API PARAMETERS
+        payload = json.loads(data)
+
+        chatlog = payload.get('chatlog', None)
+        model = payload.get('model', None)
+        temperature = payload.get('temperature', None)
+
+        try:
+            stream = client.chat.completions.create(
+                model=model,
+                messages=chatlog,
+                temperature=temperature,
+                stream=True,
+            )
+
+            for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    await websocket.send_json({
+                        "chuck":  chunk.choices[0].delta.content,
+                    })
 
         except Exception as e:
             traceback.print_exc()
