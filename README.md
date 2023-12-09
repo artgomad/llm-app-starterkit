@@ -36,6 +36,6 @@ A recurring problem with Heroku applications that connect to Google Sheets API i
 access credentials and tokens to Google Sheets API.
 To fix this error, follow this steps:
 
-1.  Run app/utils/token_mamagement_flow_to_obtain_googlesheets_tokens.py to update client_secret.json and toke.json in the root directory
+1.  Run app/utils/token_mamagement/flow_to_obtain_googlesheets_tokens.py to update client_secret.json and toke.json in the root directory
 2.  Copy it's content into the corresponding Heroku Config Vars (GOOGLE_CLIENT_SECRET and GOOGLE_SHEETS_TOKENS) in the Heroku dashboard.
 3.  Save the updated vars and the Google Sheets connection should work again!

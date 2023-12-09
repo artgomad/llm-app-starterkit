@@ -16,7 +16,7 @@ def generate_image(prompt, n: int = 1, size: str = "1024x1024"):
         prompt=prompt,
         size=size,
         quality="standard",
-        n=1
+        n=n
     )
     print(response)
 

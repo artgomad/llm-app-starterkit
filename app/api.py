@@ -20,6 +20,7 @@ from app.utils.functions.choose_best_prompt import choose_best_prompt
 from app.utils.functions.google_sheets_calculator import google_sheets_calculator
 from app.utils.functions.google_sheets_calculator_v2 import google_sheets_calculator_v2, Config
 from app.agents.gpt_assistant_basic import GPT_Assistant_API
+from app.utils.functions.dalle_3 import generate_image
 
 
 load_dotenv()
@@ -287,6 +288,41 @@ async def assistantAPI(websocket: WebSocket):
                 "data":  response,
                 "assistant_id": assistant.id,
                 "thread_id": thread.id
+            })
+
+        except Exception as e:
+            traceback.print_exc()
+            error_message = str(e)
+            tb_str = traceback.format_exc()
+            tb_lines = tb_str.split('\n')
+            last_5_lines_tb = '\n'.join(tb_lines[-6:])
+            print("ERROR: ", last_5_lines_tb)
+            await websocket.send_json({
+                "error": error_message,
+                "error_traceback": last_5_lines_tb,
+            })
+
+
+@app.websocket("/dalle3")
+async def dalee3(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_json({"message": "Let me think..."})
+
+        # 00 EXTRACT ALL API PARAMETERS
+        payload = json.loads(data)
+
+        image_description = payload.get('image_description', None)
+        size = payload.get('size', None)
+
+        try:
+            image_url, images_list = generate_image(
+                prompt=image_description, n=1, size="1024")
+
+            await websocket.send_json({
+                "generated_image":  image_url,
             })
 
         except Exception as e:
