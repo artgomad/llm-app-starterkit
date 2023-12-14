@@ -232,7 +232,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         "Error occurred when executing basicOpenAICompletion after the function call.")
 
             await websocket.send_json({
-                "data":  llm_response,
+                "data":  llm_response.dict(),
                 "context":  returned_context,
                 "context_metadata": all_product_info,
                 "inputPrompt": inputPrompt,
@@ -509,7 +509,7 @@ async def websocket_endpoint(websocket: WebSocket):
             print(llm_response)
 
             await websocket.send_json({
-                "data":  llm_response,
+                "data":  llm_response.dict(),
                 "context":  returned_context,
                 "context_metadata": docs,
                 "sources": sources,
