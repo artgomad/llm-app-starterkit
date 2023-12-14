@@ -116,6 +116,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # 01 EXECUTE CUSTOMER PROFILE UPDATE AND CHOSING SYSTEM PROMPT IN PARALLEL
         customer_profile_update, new_system_prompt = await asyncio.gather(
             update_customer_profile(
+                client=client,
                 websocket=websocket,
                 model_name=model_for_profiling,
                 chatlog=chatlog,
@@ -124,6 +125,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 functions=update_profile_function,
             ),
             choose_best_prompt(
+                client=client,
                 websocket=websocket,
                 prompt_options=prompt_options,
                 customer_profile=stringified_customer_profile,
@@ -144,6 +146,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # 02 CORE GPT FUNCTION ROUTER
         try:
             llm_response, inputPrompt = basicOpenAICompletion(
+                client=client,
                 temperature=temperature,
                 model_name=model_name,
                 chatlog=chatlog,
@@ -207,6 +210,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 # 04 GPT ANSWER INFORMED BY THE FUNCTION CALL OUTPUT
                 try:
                     llm_response, inputPrompt = basicOpenAICompletion(
+                        client=client,
                         temperature=temperature,
                         model_name=model_name,
                         chatlog=chatlog,
@@ -490,6 +494,7 @@ async def websocket_endpoint(websocket: WebSocket):
         # LLM COMPLETION
         try:
             llm_response, inputPrompt = basicOpenAICompletion(
+                client=client,
                 temperature=temperature,
                 model_name=model_name,
                 chatlog=chatlog,

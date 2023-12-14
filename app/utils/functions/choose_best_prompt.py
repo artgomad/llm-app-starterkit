@@ -4,7 +4,7 @@ import traceback
 from app.chains.BasicChatChain import basicOpenAICompletion
 
 
-async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlog, chat_history, user_question):
+async def choose_best_prompt(client, websocket, prompt_options, customer_profile, chatlog, chat_history, user_question):
     if prompt_options is None:
         return None
 
@@ -44,6 +44,7 @@ async def choose_best_prompt(websocket, prompt_options, customer_profile, chatlo
     try:
         # LLM call to choose the best system prompt
         llm_response, inputPrompt = basicOpenAICompletion(
+            client=client,
             temperature=0,
             model_name="gpt-3.5-turbo-0613",
             chatlog=chatlog,

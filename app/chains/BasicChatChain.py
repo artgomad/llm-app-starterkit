@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,10 +31,10 @@ def format_messages(chatlog=[], customer_profile="", chat_history="", context=""
     return messages
 
 
-def basicOpenAICompletion(temperature, model_name, chatlog, customer_profile="", chat_history="", context="", user_question="", functions=None, function_call="auto"):
+def basicOpenAICompletion(client, temperature, model_name, chatlog, customer_profile="", chat_history="", context="", user_question="", functions=None, function_call="auto"):
     messages = format_messages(
         chatlog, customer_profile, chat_history, context, user_question)
-    response = openai.ChatCompletion.create(
+    response = client.completions.create(
         model=model_name,
         messages=messages,
         temperature=temperature,

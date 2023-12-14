@@ -17,7 +17,7 @@ def main():
     flow = InstalledAppFlow.from_client_secrets_file(
         'client_secret.json', SCOPES)
     # This will run a local web server.
-    creds = flow.run_local_server(port=5000)
+    creds = flow.run_local_server(port=5000, prompt='consent')
 
     # Save the credentials for the next run
     with open('token.json', 'w') as token:

@@ -4,12 +4,13 @@ import traceback
 from app.chains.BasicChatChain import basicOpenAICompletion
 
 
-async def update_customer_profile(websocket, model_name, chatlog, chat_history, user_question, functions):
+async def update_customer_profile(client, websocket, model_name, chatlog, chat_history, user_question, functions):
     if functions is None:
         return None
 
     try:
         llm_response, inputPrompt = basicOpenAICompletion(
+            client=client,
             temperature=0,
             model_name=model_name,
             chatlog=chatlog,
