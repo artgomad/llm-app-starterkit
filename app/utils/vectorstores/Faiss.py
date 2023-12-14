@@ -17,7 +17,8 @@ class Faiss():
         openai.api_key = os.environ.get('OPENAI_API_KEY')
 
         self.file_name = file_name
-        self.vectorstore_path = VECTORSTORE_FOLDER + file_name
+        self.vectorstore_path = os.path.join(
+            VECTORSTORE_FOLDER, file_name + '.bin')
 
     def load_vectorstore(self):
         # Check if the file exists in vectorstore folder and load it
