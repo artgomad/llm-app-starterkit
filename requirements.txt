@@ -25,7 +25,7 @@ httpcore==1.0.2
 httplib2==0.22.0
 httpx==0.25.1
 idna==3.4
-langchain==0.0.186
+langchain==0.0.350
 marshmallow==3.19.0
 marshmallow-enum==1.5.1
 multidict==6.0.4
