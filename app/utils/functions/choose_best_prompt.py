@@ -58,8 +58,7 @@ async def choose_best_prompt(client, websocket, prompt_options, customer_profile
         print("llm_response")
         print(llm_response)
 
-        function_call_output = llm_response['choices'][0]['message'].get(
-            'function_call')
+        function_call_output = llm_response.choices[0].message.function_call
 
         print("function_call_output")
         print(function_call_output)
@@ -68,7 +67,7 @@ async def choose_best_prompt(client, websocket, prompt_options, customer_profile
         chosen_prompt_name = ""
 
         if function_call_output:
-            chosen_prompt_name = function_call_output['name']
+            chosen_prompt_name = function_call_output.name
 
             for item in prompt_options:
                 if item['name'] == chosen_prompt_name:

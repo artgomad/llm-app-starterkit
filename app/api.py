@@ -160,41 +160,40 @@ async def websocket_endpoint(websocket: WebSocket):
             print('llm response = ')
             print(llm_response)
 
-            function_call_output = llm_response['choices'][0]['message'].get(
-                'function_call')
+            function_call_output = llm_response.choices[0].message.function_call
 
             # 03 EXECUTE THE FUNCTION CHOSEN BY GPT
             if function_call_output is not None:
                 await websocket.send_json({"message": "Searching our database..."})
                 print('Calling a function!')
-                print(function_call_output['name'])
+                print(function_call_output.name)
                 print(function_call_output)
 
                 context_for_LLM = context
-                function_output = json.loads(function_call_output['arguments'])
+                function_output = json.loads(function_call_output.arguments)
 
                 # This function returns the basic content of all products that match the search terms
-                if function_call_output['name'] == 'compare_products':
+                if function_call_output.name == 'compare_products':
                     all_product_info, context_for_LLM = compare_products(
                         function_output, knowledge_base, context)
 
                 # This function returns all the metadata of a single product given the product name
-                elif function_call_output['name'] == 'read_product_details':
+                elif function_call_output.name == 'read_product_details':
                     all_product_info, context_for_LLM = read_product_details(
                         function_output, knowledge_base)
 
                 # This function returns all products that match the customer profile under a certain threshold
-                elif function_call_output['name'] == 'search_products_based_on_profile':
+                elif function_call_output.name == 'search_products_based_on_profile':
                     all_product_info, context_for_LLM = search_products_based_on_profile(
                         customer_profile_update, knowledge_base, score_threshold)
 
                 # This function is a simple semantic search on all the database
-                elif function_call_output['name'] == 'semantic_search_all_db':
+                elif function_call_output.name == 'semantic_search_all_db':
                     context_for_LLM = context  # Retrieved from the original semantic search
                     all_product_info = docs  # Retrieved from the original semantic search
 
                  # This function makes calculations with Google sheets:
-                elif function_call_output['name'].startswith('calculate'):
+                elif function_call_output.name.startswith('calculate'):
                     all_product_info, context_for_LLM = google_sheets_calculator(
                         function_output)
 
@@ -202,7 +201,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     print('function without effect')
                     # context_for_LLM equals a function_call_output stringified
                     context_for_LLM = json.dumps(
-                        function_call_output['arguments'])
+                        function_call_output.arguments)
 
                 # Send a message to the client to let them know the function executed correctly
                 await websocket.send_json({"message": "Products found, give me few seconds to answer you..."})
