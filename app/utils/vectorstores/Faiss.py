@@ -17,13 +17,15 @@ class Faiss():
         openai.api_key = os.environ.get('OPENAI_API_KEY')
 
         self.file_name = file_name
-        self.vectorstore = VECTORSTORE_FOLDER + file_name + '.pkl'
+        self.vectorstore_path = VECTORSTORE_FOLDER + file_name
 
     def load_vectorstore(self):
-        # Check if the pickle file exists in vecotrstore folder and load it
-        if os.path.exists(self.vectorstore):
-            with open(self.vectorstore, "rb") as f:
-                return pickle.load(f)
+        # Check if the file exists in vectorstore folder and load it
+        if os.path.exists(self.vectorstore_path):
+            with open(self.vectorstore_path, "rb") as f:
+                serialized_faiss_bytes = f.read()
+            embedding = OpenAIEmbeddings()
+            return FAISS.deserialize_from_bytes(embeddings=embedding, serialized=serialized_faiss_bytes)
         else:
             return None
 
@@ -33,41 +35,33 @@ class Faiss():
 
         reader = csv.DictReader(io.StringIO(csv_data))
         for row in reader:
-            # print(row['content'])
-            content = row['content']
-            if content is None:  # replace None with empty string
-                content = ''
-
-            print(row)
-
+            content = row.get('content', '')
             contents.append(content)
             metadata.append(row)
 
         # Load Data to vectorstore
         embedding = OpenAIEmbeddings()
-
         vectorstore = FAISS.from_texts(
             texts=contents, embedding=embedding, metadatas=metadata)
 
         # Make sure the directory exists before saving the vectorstore
-        print(VECTORSTORE_FOLDER)
-        os.makedirs(os.path.dirname(VECTORSTORE_FOLDER), exist_ok=True)
+        os.makedirs(os.path.dirname(self.vectorstore_path), exist_ok=True)
 
-        # Save vectorstore to a pickle file
-        with open(self.vectorstore, "wb") as f:
-            print("SAVING VECTORSTORE TO PICKLE FILE")
-            pickle.dump(vectorstore, f)
+        # Serialize the FAISS index and save to a file
+        with open(self.vectorstore_path, "wb") as f:
+            serialized_faiss_bytes = vectorstore.serialize_to_bytes()
+            f.write(serialized_faiss_bytes)
 
     def vector_search(self, query: str, number_of_outputs: int) -> str:
         print('User question: ' + query)
         print(os.getcwd())
         print(self.vectorstore)
-        # Check if the pickle file exists in vecotrstore folder and load it
-        if os.path.exists(self.vectorstore):
-            print("path exists")
-            with open(self.vectorstore, "rb") as f:
-                vectorstore = pickle.load(f)
-                print("loading vectorstore...")
+
+        # Load the vectorstore using the new method
+        vectorstore = self.load_vectorstore()
+
+        if vectorstore is not None:
+            print("Vectorstore loaded successfully")
 
             # Get the top X documents from the vectorstore
             docs_and_scores = vectorstore.similarity_search_with_score(
