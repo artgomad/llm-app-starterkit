@@ -55,7 +55,7 @@ class Faiss():
     def vector_search(self, query: str, number_of_outputs: int) -> str:
         print('User question: ' + query)
         print(os.getcwd())
-        print(self.vectorstore)
+        print(self.vectorstore_path)
 
         # Load the vectorstore using the new method
         vectorstore = self.load_vectorstore()
