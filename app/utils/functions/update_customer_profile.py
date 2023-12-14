@@ -20,8 +20,7 @@ async def update_customer_profile(client, websocket, model_name, chatlog, chat_h
             functions=functions,
             function_call={"name": "update_profile"})
 
-        function_call_output = llm_response.choices[0].message.get(
-            'function_call')
+        function_call_output = llm_response.choices[0].message.function_call
 
         customer_profile_update = json.loads(
             function_call_output['arguments'])
